@@ -4,12 +4,16 @@ from django.db import models
 
 
 class CustomGroup(Group):
+    """Модель группы доступов."""
+
     class Meta:
         verbose_name = 'доступ'
         verbose_name_plural = 'Доступы'
 
 
 class CustomUser(AbstractUser):
+    """Модель пользователя"""
+
     email = models.EmailField(
         verbose_name='E-mail',
         help_text='Введите e-mail',
@@ -28,12 +32,12 @@ class CustomUser(AbstractUser):
         unique=True,
         blank=False,
         max_length=150,
-        validators=[
-            RegexValidator(
-                regex=r'^[\w.@+-]+\z',
-                message='username не прошел валидацию!',
-            ),
-        ],
+        # validators=[
+        #     RegexValidator(
+        #         regex=r'^[\w.@+-]+\z',
+        #         message='username не прошел валидацию!',
+        #     ),
+        # ],
         error_messages={
             'unique': 'Пользователь с таким username уже создан!',
         },
@@ -54,6 +58,15 @@ class CustomUser(AbstractUser):
         blank=False,
         max_length=150,
     )
+
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = [
+        'email',
+        'first_name',
+        'last_name',
+        'password',
+    ]
 
     class Meta:
         verbose_name = 'пользователь'

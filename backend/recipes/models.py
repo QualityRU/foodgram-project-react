@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import CustomUser
@@ -29,7 +30,16 @@ class Recipe(models.Model):
         verbose_name='Описание рецепта',
         help_text='Введите описание рецепта',
     )
-    cooking_time = ...
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name='Время приготовления',
+        help_text='Введите время приготовления',
+        validators=[
+            MinValueValidator(
+                limit_value=1,
+                message='Время приготовления не может быть меньше 1 минуты!',
+            )
+        ],
+    )
 
     class Meta:
         verbose_name = 'рецепт'
