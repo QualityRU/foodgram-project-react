@@ -4,6 +4,6 @@ line-length = 79
 [tool.isort]
 profile = "black"
 known_django_party = ["foodgram"]
-known_local_folder = [""]
+known_local_folder = ["api", "recipes", "users"]
 sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'DJANGO_PARTY', 'LOCALFOLDER']
 line_length = 79
