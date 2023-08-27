@@ -4,13 +4,73 @@ from django.db import models
 from users.models import CustomUser
 
 
+class Ingredient(models.Model):
+    """Модель ингредиентов."""
+
+    name = models.CharField(
+        verbose_name='Название',
+        help_text='Введите название',
+        unique=True,
+        db_index=True,
+        blank=False,
+        max_length=200,
+    )
+    measurement_unit = models.CharField(
+        verbose_name='Единицы измерения',
+        help_text='Введите единицу измерения',
+        blank=False,
+        max_length=200,
+    )
+
+    class Meta:
+        verbose_name = 'ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    """Модель тегов."""
+
+    name = models.CharField(
+        verbose_name='Название',
+        help_text='Введите название',
+        unique=True,
+        db_index=True,
+        blank=False,
+        max_length=200,
+    )
+    color = models.CharField(
+        verbose_name='Цвет',
+        help_text='Введите цвет',
+        unique=True,
+        blank=False,
+        max_length=7,
+    )
+    slug = models.SlugField(
+        verbose_name='Слаг',
+        help_text='Введите слаг',
+        unique=True,
+        blank=False,
+        max_length=200,
+    )
+
+    class Meta:
+        verbose_name = 'тег'
+        verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name
+
+
 class Recipe(models.Model):
     """Модель рецептов."""
 
     author = models.ForeignKey(
         CustomUser,
-        verbose_name='Автор рецепта',
-        help_text='Выберите автора рецепта',
+        verbose_name='Автор публикации',
+        help_text='Выберите автора публикации',
         on_delete=models.CASCADE,
         related_name='recipe',
     )
@@ -18,21 +78,35 @@ class Recipe(models.Model):
         verbose_name='Дата публикации',
         auto_now_add=True,
     )
-    ingredients = ...
-    tags = ...
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        verbose_name='Ингредиенты',
+        help_text='Выберите ингриденты',
+        through='IngredientM2MRecipe',
+        related_name='recipe',
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name='Теги',
+        help_text='Выберите тег',
+        related_name='recipe',
+    )
     image = ...
     name = models.CharField(
-        verbose_name='Название рецепта',
-        help_text='Введите название рецепта',
+        verbose_name='Название',
+        help_text='Введите название',
+        blank=False,
         max_length=200,
     )
     text = models.TextField(
-        verbose_name='Описание рецепта',
-        help_text='Введите описание рецепта',
+        verbose_name='Текстовое описание',
+        help_text='Введите текстовое описание',
+        blank=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
-        verbose_name='Время приготовления',
-        help_text='Введите время приготовления',
+        verbose_name='Время приготовления в минутах',
+        help_text='Введите время приготовления в минутах',
+        blank=False,
         validators=[
             MinValueValidator(
                 limit_value=1,
@@ -49,57 +123,32 @@ class Recipe(models.Model):
         return self.name
 
 
-class Tag(models.Model):
-    """Модель тегов."""
+class IngredientM2MRecipe(models.Model):
+    """Модель для связи моделей Ingredient и Recipe."""
 
-    name = models.CharField(
-        verbose_name='Название тега',
-        help_text='Введите название тега',
-        unique=True,
-        db_index=True,
-        max_length=200,
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='ingredient',
+        verbose_name='Рецепт',
+        help_text='Выберите рецепт',
     )
-    color = models.CharField(
-        verbose_name='Цвет',
-        help_text='Введите цвет тега',
-        unique=True,
-        max_length=7,
+    ingredient = models.ForeignKey(
+        Ingredient,
+        verbose_name='Ингредиент',
+        help_text='Выберите ингредиент/ы',
+        on_delete=models.CASCADE,
     )
-    slug = models.SlugField(
-        verbose_name='Слаг',
-        help_text='Введите слаг тега',
-        unique=True,
-        max_length=200,
-    )
-
-    class Meta:
-        verbose_name = 'тег'
-        verbose_name_plural = 'Теги'
-
-    def __str__(self):
-        return self.name
-
-
-class Ingredient(models.Model):
-    """Модель ингредиентов."""
-
-    name = models.CharField(
-        verbose_name='Название ингредиента',
-        help_text='Введите название ингредиента',
-        unique=True,
-        db_index=True,
-        max_length=200,
-    )
-    count = ...
-    measurement_unit = models.CharField(
-        verbose_name='Единицы измерения',
-        help_text='Введите единицу измерения',
-        max_length=200,
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        help_text='Введите количество',
+        validators=[
+            MinValueValidator(
+                limit_value=1, message='Ингредиентов не может быть меньше 1!'
+            )
+        ],
     )
 
     class Meta:
-        verbose_name = 'ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-
-    def __str__(self):
-        return self.name
+        verbose_name = 'ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецептах'
