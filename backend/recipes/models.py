@@ -10,7 +10,6 @@ class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название',
         help_text='Введите название',
-        unique=True,
         db_index=True,
         blank=False,
         max_length=200,
@@ -25,6 +24,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -59,6 +59,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'тег'
         verbose_name_plural = 'Теги'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -118,6 +119,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ('id',)
 
     def __str__(self):
         return self.name
