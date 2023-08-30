@@ -7,12 +7,22 @@ from .models import Ingredient, IngredientM2MRecipe, Recipe, Tag
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    ...
+    list_display = (
+        'id',
+        'name',
+        'author',
+        'pub_date',
+    )
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    ...
+    list_display = (
+        'id',
+        'name',
+        'color',
+        'slug',
+    )
 
 
 class IngredientResource(ModelResource):
