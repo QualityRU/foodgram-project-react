@@ -1,18 +1,19 @@
-from django.contrib.auth.models import AbstractUser, Group
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import EmailValidator, RegexValidator
 from django.db import models
+from rest_framework.authtoken.models import Token
 
 
-class CustomGroup(Group):
-    """Модель группы доступов."""
+class CustomToken(Token):
+    """Модель токенов пользователя."""
 
     class Meta:
-        verbose_name = 'доступ'
-        verbose_name_plural = 'Доступы'
+        verbose_name = 'токен'
+        verbose_name_plural = 'Токены'
 
 
 class CustomUser(AbstractUser):
-    """Модель пользователя"""
+    """Модель пользователя."""
 
     email = models.EmailField(
         verbose_name='E-mail',
@@ -83,7 +84,7 @@ class CustomUser(AbstractUser):
 
 
 class Follow(models.Model):
-    """Модель подписки."""
+    """Модель подписок на автора."""
 
     follower = models.ForeignKey(
         CustomUser,

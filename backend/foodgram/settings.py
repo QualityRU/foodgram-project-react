@@ -24,10 +24,11 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     'rest_framework',
     'import_export',
     'djoser',
+    'admin_reorder',
 ]
 
 MIDDLEWARE = [
@@ -38,7 +39,31 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
+
+ADMIN_REORDER = (
+    {
+        'app': 'users',
+        'models': (
+            'users.CustomToken',
+            'users.CustomUser',
+            'users.Follow',
+            'auth.Group',
+        ),
+    },
+    {
+        'app': 'recipes',
+        'models': (
+            'recipes.Recipe',
+            'recipes.Ingredient',
+            'recipes.Tag',
+            'recipes.IngredientM2MRecipe',
+            'recipes.FavoriteRecipe',
+            'recipes.ShoppingCartRecipe',
+        ),
+    },
+)
 
 ROOT_URLCONF = 'foodgram.urls'
 
