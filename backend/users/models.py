@@ -80,3 +80,29 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class Follow(models.Model):
+    """Модель подписки."""
+
+    follower = models.ForeignKey(
+        CustomUser,
+        verbose_name='Подписчик',
+        help_text='Введите подписчика',
+        on_delete=models.CASCADE,
+        related_name='following',
+    )
+    author = models.ForeignKey(
+        CustomUser,
+        verbose_name='Автор',
+        help_text='Введите автора',
+        on_delete=models.CASCADE,
+        related_name='followers',
+    )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.follower} подписан на {self.author}'

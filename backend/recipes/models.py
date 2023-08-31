@@ -95,7 +95,8 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Фотограция',
         help_text='Загрузите фотографию',
-        upload_to="recipes/")
+        upload_to='recipes/',
+    )
     name = models.CharField(
         verbose_name='Название',
         help_text='Введите название',
@@ -133,10 +134,10 @@ class IngredientM2MRecipe(models.Model):
 
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE,
-        related_name='ingredient',
         verbose_name='Рецепт',
         help_text='Выберите рецепт',
+        on_delete=models.CASCADE,
+        related_name='ingredient',
     )
     ingredient = models.ForeignKey(
         Ingredient,
@@ -157,3 +158,60 @@ class IngredientM2MRecipe(models.Model):
     class Meta:
         verbose_name = 'ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
+
+    # def __str__(self):
+    #     return self.recipe, self.ingredient, self.amount
+
+
+class FavoriteRecipe(models.Model):
+    """Модель для рецептов, добавленных в избранное."""
+
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Пользователь',
+        help_text='Выберите пользователя',
+        on_delete=models.CASCADE,
+        related_name='favorite',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name='Рецепт',
+        help_text='Выберите рецепт',
+        on_delete=models.CASCADE,
+        related_name='favorite',
+    )
+
+    class Meta:
+        verbose_name = 'избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
+        unique_together = ['user', 'recipe']
+
+    # def __str__(self):
+    #     return self.user, self.recipe
+
+
+class ShoppingCartRecipe(models.Model):
+    """Модель для рецептов, добавленных в список покупок."""
+
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Пользователь',
+        help_text='Выберите пользователя',
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name='Рецепт',
+        help_text='Выберите рецепт',
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+    )
+
+    class Meta:
+        verbose_name = 'корзина с рецептом'
+        verbose_name_plural = 'Корзины с рецептами'
+        unique_together = ['user', 'recipe']
+
+    # def __str__(self):
+    #     return self.user, self.recipe

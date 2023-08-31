@@ -2,7 +2,14 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import Ingredient, IngredientM2MRecipe, Recipe, Tag
+from .models import (
+    FavoriteRecipe,
+    Ingredient,
+    IngredientM2MRecipe,
+    Recipe,
+    ShoppingCartRecipe,
+    Tag,
+)
 
 
 @admin.register(Recipe)
@@ -13,6 +20,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'author',
         'pub_date',
     )
+    search_fields = ('name', 'author')
 
 
 @admin.register(Tag)
@@ -23,6 +31,7 @@ class TagAdmin(admin.ModelAdmin):
         'color',
         'slug',
     )
+    search_fields = ('name', 'color', 'slug')
 
 
 class IngredientResource(ModelResource):
@@ -50,5 +59,31 @@ class IngredientAdmin(ImportExportModelAdmin):
 
 
 @admin.register(IngredientM2MRecipe)
-class IngredientM2MRecipe(admin.ModelAdmin):
-    ...
+class IngredientM2MRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'recipe',
+        'ingredient',
+        'amount',
+    )
+    search_fields = ('recipe', 'ingredient')
+
+
+@admin.register(FavoriteRecipe)
+class FavoriteRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'recipe',
+    )
+    search_fields = ('user', 'recipe')
+
+
+@admin.register(ShoppingCartRecipe)
+class ShoppingCartRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'recipe',
+    )
+    search_fields = ('user', 'recipe')
