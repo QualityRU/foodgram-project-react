@@ -4,24 +4,24 @@ from .models import Ingredient, Recipe, Tag
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    """"""
+    """Сериализатор для модели Recipe."""
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """"""
+    """Сериализатор c Tag."""
 
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """"""
+    """Сериализатор для модели Ingredient."""
 
     class Meta:
         model = Ingredient
-        fields = '__all__'
+        fields = ('id', 'name', 'measurement_unit')

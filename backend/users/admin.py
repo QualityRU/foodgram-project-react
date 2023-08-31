@@ -32,4 +32,9 @@ class FollowAdmin(admin.ModelAdmin):
         'follower',
         'author',
     )
-    search_fields = ('follower', 'author')
+    search_fields = [
+        'user__username',
+        'user__username',
+        'user__first_name',
+        'user__last_name',
+    ]
