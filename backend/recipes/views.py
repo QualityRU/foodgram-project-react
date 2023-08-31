@@ -1,20 +1,7 @@
 from rest_framework import viewsets
 
-from .serializers import (
-    CustomUserSerializer,
-    IngredientSerializer,
-    RecipeSerializer,
-    TagSerializer,
-)
-from recipes.models import Ingredient, Recipe, Tag
-from users.models import CustomUser
-
-
-class CustomUserViewSet(viewsets.ModelViewSet):
-    """"""
-
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+from .models import Ingredient, Recipe, Tag
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

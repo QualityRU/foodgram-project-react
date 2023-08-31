@@ -1,9 +1,10 @@
+from datetime import timedelta
 from os import getenv
 from pathlib import Path
 
-import dotenv
+from dotenv import load_dotenv
 
-dotenv.load_dotenv()
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +25,9 @@ INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
     'rest_framework',
+    'rest_framework.authtoken',
     'import_export',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +90,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -95,3 +102,22 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+}
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 6,
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}

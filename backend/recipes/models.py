@@ -92,7 +92,10 @@ class Recipe(models.Model):
         help_text='Выберите тег',
         related_name='recipe',
     )
-    image = ...
+    image = models.ImageField(
+        verbose_name='Фотограция',
+        help_text='Загрузите фотографию',
+        upload_to="recipes/")
     name = models.CharField(
         verbose_name='Название',
         help_text='Введите название',
