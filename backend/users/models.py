@@ -4,7 +4,7 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    """Модель пользователя."""
+    """Модель кастомного пользователя."""
 
     email = models.EmailField(
         verbose_name='E-mail',
@@ -51,8 +51,6 @@ class CustomUser(AbstractUser):
         max_length=150,
     )
 
-    EMAIL_FIELD = 'email'
-    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = [
         'email',
         'first_name',
@@ -75,7 +73,7 @@ class CustomUser(AbstractUser):
 
 
 class Follow(models.Model):
-    """Модель подписок на автора."""
+    """Модель подписок на автора рецепта."""
 
     follower = models.ForeignKey(
         CustomUser,
