@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Ingredient, Recipe, Tag
+from .validators import ColorSerializerValidator
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -12,7 +13,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор c Tag."""
+    """Сериализатор для модели Tag."""
+
+    color = ColorSerializerValidator()
 
     class Meta:
         model = Tag
