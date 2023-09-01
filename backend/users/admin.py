@@ -1,17 +1,34 @@
 from django.contrib import admin
+from import_export.admin import ImportExportModelAdmin
+from import_export.resources import ModelResource
 
-from .models import CustomToken, CustomUser, Follow
+from .models import CustomUser, Follow
 
 
-@admin.register(CustomToken)
-class TokenAdmin(admin.ModelAdmin):
-    list_display = ('key', 'user', 'created')
-    fields = ('user',)
-    ordering = ('-created',)
+class CustomUserResource(ModelResource):
+    """Модель ресурсов кастомных пользователей."""
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'is_staff',
+            'date_joined',
+        )
 
 
 @admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(ImportExportModelAdmin):
+    """
+    Регистрация модели кастомных пользователей
+    и импорта/эскпорта в админ-панели.
+    """
+
+    resource_class = (CustomUserResource,)
     list_display = (
         'id',
         'username',
@@ -24,8 +41,23 @@ class CustomUserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email', 'first_name', 'last_name')
 
 
+class FollowResource(ModelResource):
+    """Модель ресурсов подписок."""
+
+    class Meta:
+        model = Follow
+        fields = (
+            'id',
+            'follower',
+            'author',
+        )
+
+
 @admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
+class FollowAdmin(ImportExportModelAdmin):
+    """Регистрация модели подписок и импорта/эскпорта в админ-панели."""
+
+    resource_class = (FollowResource,)
     list_display = (
         'id',
         'follower',

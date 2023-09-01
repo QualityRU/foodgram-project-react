@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
-    # 'rest_framework.authtoken',
+    'rest_framework.authtoken',
     'rest_framework',
     'import_export',
     'djoser',
@@ -46,7 +46,7 @@ ADMIN_REORDER = (
     {
         'app': 'users',
         'models': (
-            'users.CustomToken',
+            {'model': 'authtoken.TokenProxy', 'label': 'Токены'},
             'users.CustomUser',
             'users.Follow',
             'auth.Group',
@@ -133,9 +133,9 @@ DJOSER = {
 }
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],

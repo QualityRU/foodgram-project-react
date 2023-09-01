@@ -12,8 +12,24 @@ from .models import (
 )
 
 
+class RecipeResource(ModelResource):
+    """Модель ресурсов рецептов."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'author',
+            'pub_date',
+        )
+
+
 @admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
+class RecipeAdmin(ImportExportModelAdmin):
+    """Регистрация модели рецептов и импорта/эскпорта в админ-панели."""
+
+    resource_class = (RecipeResource,)
     list_display = (
         'id',
         'name',
@@ -23,8 +39,24 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author')
 
 
+class TagResource(ModelResource):
+    """Модель ресурсов тегов."""
+
+    class Meta:
+        model = Tag
+        fields = (
+            'id',
+            'name',
+            'color',
+            'slug',
+        )
+
+
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(ImportExportModelAdmin):
+    """Регистрация модели тегов и импорта/эскпорта в админ-панели."""
+
+    resource_class = (TagResource,)
     list_display = (
         'id',
         'name',
@@ -48,7 +80,7 @@ class IngredientResource(ModelResource):
 
 @admin.register(Ingredient)
 class IngredientAdmin(ImportExportModelAdmin):
-    """Модель эскпорта и импорта ингредиентов."""
+    """Регистрация модели ингредиентов и импорта/эскпорта в админ-панели."""
 
     resource_classes = (IngredientResource,)
     list_display = (
@@ -58,8 +90,27 @@ class IngredientAdmin(ImportExportModelAdmin):
     )
 
 
+class IngredientM2MRecipeResource(ModelResource):
+    """Модель ингредиента в рецепте."""
+
+    class Meta:
+        model = IngredientM2MRecipe
+        fields = (
+            'id',
+            'recipe',
+            'ingredient',
+            'amount',
+        )
+
+
 @admin.register(IngredientM2MRecipe)
-class IngredientM2MRecipeAdmin(admin.ModelAdmin):
+class IngredientM2MRecipeAdmin(ImportExportModelAdmin):
+    """
+    Регистрация модели ингредиентов в рецепте и
+    импорта/эскпорта в админ-панели.
+    """
+
+    resource_classes = (IngredientM2MRecipeResource,)
     list_display = (
         'id',
         'recipe',
@@ -69,8 +120,25 @@ class IngredientM2MRecipeAdmin(admin.ModelAdmin):
     search_fields = ('recipe', 'ingredient')
 
 
+class FavoriteRecipeResource(ModelResource):
+    """Модель ресурсов избранных рецептов."""
+
+    class Meta:
+        model = FavoriteRecipe
+        fields = (
+            'id',
+            'user',
+            'recipe',
+        )
+
+
 @admin.register(FavoriteRecipe)
-class FavoriteRecipeAdmin(admin.ModelAdmin):
+class FavoriteRecipeAdmin(ImportExportModelAdmin):
+    """
+    Регистрация модели избранных рецептов и импорта/эскпорта в админ-панели.
+    """
+
+    resource_classes = (FavoriteRecipeResource,)
     list_display = (
         'id',
         'user',
@@ -79,8 +147,25 @@ class FavoriteRecipeAdmin(admin.ModelAdmin):
     search_fields = ('user', 'recipe')
 
 
+class ShoppingCartRecipeResource(ModelResource):
+    """Модель ресурсов рецептов в корзине."""
+
+    class Meta:
+        model = ShoppingCartRecipe
+        fields = (
+            'id',
+            'user',
+            'recipe',
+        )
+
+
 @admin.register(ShoppingCartRecipe)
-class ShoppingCartRecipeAdmin(admin.ModelAdmin):
+class ShoppingCartRecipeAdmin(ImportExportModelAdmin):
+    """
+    Регистрация модели рецептов в корзине и импорта/эскпорта в админ-панели.
+    """
+
+    resource_classes = (ShoppingCartRecipeResource,)
     list_display = (
         'id',
         'user',

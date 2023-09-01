@@ -1,15 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import EmailValidator, RegexValidator
 from django.db import models
-from rest_framework.authtoken.models import Token
-
-
-class CustomToken(Token):
-    """Модель токенов пользователя."""
-
-    class Meta:
-        verbose_name = 'токен'
-        verbose_name_plural = 'Токены'
 
 
 class CustomUser(AbstractUser):
