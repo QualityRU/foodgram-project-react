@@ -8,7 +8,6 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(
         verbose_name='E-mail',
-        help_text='Введите e-mail',
         unique=True,
         blank=False,
         max_length=254,
@@ -20,7 +19,6 @@ class CustomUser(AbstractUser):
     )
     username = models.CharField(
         verbose_name='Username',
-        help_text='Введите username',
         unique=True,
         blank=False,
         max_length=150,
@@ -36,17 +34,14 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        help_text='Введите имя',
         max_length=150,
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        help_text='Введите фамилию',
         max_length=150,
     )
     password = models.CharField(
         verbose_name='Пароль',
-        help_text='Введите пароль',
         blank=False,
         max_length=150,
     )
@@ -78,14 +73,12 @@ class Follow(models.Model):
     follower = models.ForeignKey(
         CustomUser,
         verbose_name='Подписчик',
-        help_text='Введите подписчика',
         on_delete=models.CASCADE,
         related_name='following',
     )
     author = models.ForeignKey(
         CustomUser,
         verbose_name='Автор',
-        help_text='Введите автора',
         on_delete=models.CASCADE,
         related_name='followers',
     )
@@ -93,6 +86,15 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['follower', 'author'], name='unique_follower'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(author=models.F('follower')),
+                name='check_author',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.follower} подписан на {self.author}'

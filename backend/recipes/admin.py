@@ -25,17 +25,25 @@ class RecipeResource(ModelResource):
         )
 
 
+class IngredientsInline(admin.TabularInline):
+    model = IngredientM2MRecipe
+    extra = 0
+    min_num = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(ImportExportModelAdmin):
     """Регистрация модели рецептов и импорта/эскпорта в админ-панели."""
 
     resource_class = (RecipeResource,)
+    inlines = (IngredientsInline,)
     list_display = (
         'id',
         'name',
         'author',
         'pub_date',
     )
+    list_filter = ('author', 'name', 'tags')
     search_fields = ('name', 'author')
 
 

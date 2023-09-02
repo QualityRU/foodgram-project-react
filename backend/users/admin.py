@@ -38,6 +38,7 @@ class CustomUserAdmin(ImportExportModelAdmin):
         'is_staff',
         'date_joined',
     )
+    list_filter = ('username', 'email', 'first_name', 'last_name')
     search_fields = ('username', 'email', 'first_name', 'last_name')
 
 
@@ -62,6 +63,10 @@ class FollowAdmin(ImportExportModelAdmin):
         'id',
         'follower',
         'author',
+    )
+    list_filter = (
+        'author',
+        'follower',
     )
     search_fields = [
         'user__username',

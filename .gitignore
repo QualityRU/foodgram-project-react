@@ -137,3 +137,4 @@ media/
 
 # Others
 node_modules
+sent_emails/
