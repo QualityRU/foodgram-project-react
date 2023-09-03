@@ -23,9 +23,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = [
-            ('name'),
-        ]
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -49,7 +47,7 @@ class Tag(models.Model):
         validators=[ColorFieldValidator],
     )
     slug = models.SlugField(
-        verbose_name='Слаг',
+        verbose_name='Индентификатор',
         unique=True,
         blank=False,
         max_length=200,
@@ -71,22 +69,14 @@ class Recipe(models.Model):
         CustomUser,
         verbose_name='Автор публикации',
         on_delete=models.CASCADE,
-        related_name='recipe',
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='Дата публикации',
-        auto_now_add=True,
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='IngredientM2MRecipe',
-        related_name='recipe',
+        through='IngredientAmount',
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        help_text='Выберите тег',
-        related_name='recipe',
     )
     image = models.ImageField(
         verbose_name='Фотограция',
@@ -115,20 +105,19 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('id',)
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
-class IngredientM2MRecipe(models.Model):
-    """Модель для связи моделей Ingredient и Recipe."""
+class IngredientAmount(models.Model):
+    """Модель количества ингредиентов."""
 
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
-        related_name='ingredient',
     )
     ingredient = models.ForeignKey(
         Ingredient,
@@ -145,27 +134,26 @@ class IngredientM2MRecipe(models.Model):
     )
 
     class Meta:
-        verbose_name = 'ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецептах'
+        verbose_name = 'количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
+        ordering = ('recipe',)
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}, {self.amount}'
 
 
-class FavoriteRecipe(models.Model):
-    """Модель для рецептов, добавленных в избранное."""
+class Favorite(models.Model):
+    """Модель для избранных рецептов."""
 
     user = models.ForeignKey(
         CustomUser,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
-        related_name='favorite',
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
-        related_name='favorite',
     )
 
     class Meta:
@@ -181,20 +169,18 @@ class FavoriteRecipe(models.Model):
         return f'{self.user} добавил {self.recipe} в избранное'
 
 
-class ShoppingCartRecipe(models.Model):
-    """Модель для рецептов, добавленных в список покупок."""
+class ShoppingCart(models.Model):
+    """Модель для рецептов в корзины."""
 
     user = models.ForeignKey(
         CustomUser,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
     )
 
     class Meta:

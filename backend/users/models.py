@@ -59,7 +59,7 @@ class CustomUser(AbstractUser):
         ordering = ['email']
         constraints = [
             models.UniqueConstraint(
-                fields=['username', 'email'], name='unique_user'
+                fields=['username', 'email'], name='unique_username'
             )
         ]
 

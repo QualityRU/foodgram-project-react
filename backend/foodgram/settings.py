@@ -46,10 +46,10 @@ ADMIN_REORDER = (
     {
         'app': 'users',
         'models': (
-            {'model': 'authtoken.TokenProxy', 'label': 'Токены'},
             'users.CustomUser',
+            {'model': 'authtoken.TokenProxy', 'label': 'Токены'},
+            {'model': 'auth.Group', 'label': 'Группы доступа'},
             'users.Follow',
-            'auth.Group',
         ),
     },
     {
@@ -58,9 +58,9 @@ ADMIN_REORDER = (
             'recipes.Recipe',
             'recipes.Ingredient',
             'recipes.Tag',
-            'recipes.IngredientM2MRecipe',
-            'recipes.FavoriteRecipe',
-            'recipes.ShoppingCartRecipe',
+            'recipes.IngredientAmount',
+            'recipes.Favorite',
+            'recipes.ShoppingCart',
         ),
     },
 )
@@ -85,12 +85,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': getenv('POSTGRES_DB', 'django'),
+            'USER': getenv('POSTGRES_USER', 'django'),
+            'PASSWORD': getenv('POSTGRES_PASSWORD', ''),
+            'NAME': getenv('DB_NAME', 'default'),
+            'HOST': getenv('DB_HOST', ''),
+            'PORT': getenv('DB_PORT', 5432),
+        }
+    }
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -130,7 +143,7 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -146,4 +159,4 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
 }
 
-APPEND_SLASH = False
+APPEND_SLASH = True
