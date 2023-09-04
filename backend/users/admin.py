@@ -2,14 +2,14 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import CustomUser, Follow
+from .models import User, Follow
 
 
-class CustomUserResource(ModelResource):
+class UserResource(ModelResource):
     """Модель ресурсов кастомных пользователей."""
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'id',
             'username',
@@ -21,14 +21,14 @@ class CustomUserResource(ModelResource):
         )
 
 
-@admin.register(CustomUser)
-class CustomUserAdmin(ImportExportModelAdmin):
+@admin.register(User)
+class UserAdmin(ImportExportModelAdmin):
     """
     Регистрация модели кастомных пользователей
     и импорта/эскпорта в админ-панели.
     """
 
-    resource_class = (CustomUserResource,)
+    resource_class = (UserResource,)
     list_display = (
         'id',
         'username',

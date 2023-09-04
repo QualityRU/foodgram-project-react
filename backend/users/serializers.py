@@ -1,12 +1,12 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from .models import CustomUser, Follow
+from .models import User, Follow
 from .validators import UsernameFieldValidator
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
-    """"""
+class UserCreateSerializer(UserCreateSerializer):
+    """Сериализатор для регистрации пользоваля."""
 
     username = UsernameFieldValidator()
 
@@ -19,15 +19,22 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'last_name',
             'password',
         )
+        extra_kwargs = {
+            'email': {'required': True},
+            'username': {'required': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+            'password': {'required': True},
+        }
 
 
-class CustomUserReadSerializer(UserSerializer):
-    """"""
+class UserReadSerializer(UserSerializer):
+    """Сериализатор для чтения полей пользователя."""
 
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'email',
             'id',
@@ -46,3 +53,16 @@ class CustomUserReadSerializer(UserSerializer):
         return Follow.objects.filter(
             follower=request.user, author=obj
         ).exists()
+
+
+class UserSetPasswordSerializer(serializers.Serializer):
+    """Сериализатор для смены пароля."""
+
+    new_password = serializers.CharField(required=True, write_only=True)
+    current_password = serializers.CharField(required=True, write_only=True)
+
+    class Meta:
+        extra_kwargs = {
+            'new_password': {'required': True},
+            'current_password': {'required': True},
+        }

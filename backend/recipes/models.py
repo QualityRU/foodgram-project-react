@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from .validators import validate_colorfield
-from users.models import CustomUser
+from users.models import User
 
 
 class Ingredient(models.Model):
@@ -66,7 +66,7 @@ class Recipe(models.Model):
     """Модель рецептов."""
 
     author = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Автор публикации',
         on_delete=models.CASCADE,
     )
@@ -146,7 +146,7 @@ class Favorite(models.Model):
     """Модель для избранных рецептов."""
 
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
     )
@@ -173,7 +173,7 @@ class ShoppingCart(models.Model):
     """Модель для рецептов в корзины."""
 
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
     )

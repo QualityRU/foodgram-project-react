@@ -5,7 +5,7 @@ from django.db import models
 from .validators import validate_username
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     """Модель кастомного пользователя."""
 
     email = models.EmailField(
@@ -15,27 +15,21 @@ class CustomUser(AbstractUser):
         max_length=254,
         validators=[
             EmailValidator(
-                message='e-mail не прошел валидацию!',
+                message='Некорректный e-mail!',
             ),
         ],
+        error_messages={
+            'unique': 'Пользователь с таким e-mail уже создан!',
+        },
     )
     username = models.CharField(
         verbose_name='Username',
         unique=True,
-        blank=False,
         max_length=150,
         validators=[validate_username],
         error_messages={
             'unique': 'Пользователь с таким username уже создан!',
         },
-    )
-    first_name = models.CharField(
-        verbose_name='Имя',
-        max_length=150,
-    )
-    last_name = models.CharField(
-        verbose_name='Фамилия',
-        max_length=150,
     )
     password = models.CharField(
         verbose_name='Пароль',
@@ -68,13 +62,13 @@ class Follow(models.Model):
     """Модель подписок на автора рецепта."""
 
     follower = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
         related_name='following',
     )
     author = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
         related_name='followers',

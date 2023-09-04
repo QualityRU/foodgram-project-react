@@ -46,7 +46,7 @@ ADMIN_REORDER = (
     {
         'app': 'users',
         'models': (
-            'users.CustomUser',
+            'users.User',
             {'model': 'authtoken.TokenProxy', 'label': 'Токены'},
             {'model': 'auth.Group', 'label': 'Группы доступа'},
             'users.Follow',
@@ -105,7 +105,7 @@ else:
         }
     }
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
