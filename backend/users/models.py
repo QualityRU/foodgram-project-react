@@ -58,7 +58,7 @@ class User(AbstractUser):
         return f'{self.username} ({self.email})'
 
 
-class Follow(models.Model):
+class Subscribe(models.Model):
     """Модель подписок на автора рецепта."""
 
     follower = models.ForeignKey(
@@ -88,4 +88,4 @@ class Follow(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.follower} подписан на {self.author}'
+        return f'{self.user} подписан на {self.author}'

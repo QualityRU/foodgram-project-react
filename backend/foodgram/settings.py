@@ -49,7 +49,7 @@ ADMIN_REORDER = (
             'users.User',
             {'model': 'authtoken.TokenProxy', 'label': 'Токены'},
             {'model': 'auth.Group', 'label': 'Группы доступа'},
-            'users.Follow',
+            'users.Subscribe',
         ),
     },
     {

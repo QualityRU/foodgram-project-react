@@ -1,7 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from .models import Follow, User
+from .models import Subscribe, User
 from .validators import UsernameFieldValidator
 
 
@@ -50,7 +50,7 @@ class UserReadSerializer(UserSerializer):
         if not request or request.user.is_anonymous:
             return False
 
-        return Follow.objects.filter(
+        return Subscribe.objects.filter(
             follower=request.user, author=obj
         ).exists()
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import Follow, User
+from .models import Subscribe, User
 
 
 class UserResource(ModelResource):
@@ -42,11 +42,11 @@ class UserAdmin(ImportExportModelAdmin):
     search_fields = ('username', 'email', 'first_name', 'last_name')
 
 
-class FollowResource(ModelResource):
+class SubscribeResource(ModelResource):
     """Модель ресурсов подписок."""
 
     class Meta:
-        model = Follow
+        model = Subscribe
         fields = (
             'id',
             'follower',
@@ -54,11 +54,11 @@ class FollowResource(ModelResource):
         )
 
 
-@admin.register(Follow)
-class FollowAdmin(ImportExportModelAdmin):
+@admin.register(Subscribe)
+class SubscribeAdmin(ImportExportModelAdmin):
     """Регистрация модели подписок и импорта/эскпорта в админ-панели."""
 
-    resource_class = (FollowResource,)
+    resource_class = (SubscribeResource,)
     list_display = (
         'id',
         'follower',
