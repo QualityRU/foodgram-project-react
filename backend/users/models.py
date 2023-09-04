@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import EmailValidator, RegexValidator
+from django.core.validators import EmailValidator
 from django.db import models
+
+from .validators import validate_username
 
 
 class CustomUser(AbstractUser):
@@ -22,12 +24,7 @@ class CustomUser(AbstractUser):
         unique=True,
         blank=False,
         max_length=150,
-        # validators=[
-        #     RegexValidator(
-        #         regex=r'^[\w.@+-]+\z',
-        #         message='username не прошел валидацию!',
-        #     ),
-        # ],
+        validators=[validate_username],
         error_messages={
             'unique': 'Пользователь с таким username уже создан!',
         },

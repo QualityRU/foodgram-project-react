@@ -2,10 +2,13 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from .models import CustomUser, Follow
+from .validators import UsernameFieldValidator
 
 
-class UserCreateSerializer(UserCreateSerializer):
+class CustomUserCreateSerializer(UserCreateSerializer):
     """"""
+
+    username = UsernameFieldValidator()
 
     class Meta(UserCreateSerializer.Meta):
         fields = (
@@ -14,10 +17,11 @@ class UserCreateSerializer(UserCreateSerializer):
             'username',
             'first_name',
             'last_name',
+            'password',
         )
 
 
-class UserReadSerializer(UserSerializer):
+class CustomUserReadSerializer(UserSerializer):
     """"""
 
     is_subscribed = serializers.SerializerMethodField()
@@ -36,8 +40,9 @@ class UserReadSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
 
-        if request and request.user.is_authenticated:
-            return Follow.objects.filter(
-                follower=request.user, author=obj
-            ).exists()
-        return False
+        if not request or request.user.is_anonymous:
+            return False
+
+        return Follow.objects.filter(
+            follower=request.user, author=obj
+        ).exists()

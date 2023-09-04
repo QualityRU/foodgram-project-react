@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from .validators import ColorFieldValidator
+from .validators import validate_colorfield
 from users.models import CustomUser
 
 
@@ -44,7 +44,7 @@ class Tag(models.Model):
         unique=True,
         blank=False,
         max_length=7,
-        validators=[ColorFieldValidator],
+        validators=[validate_colorfield],
     )
     slug = models.SlugField(
         verbose_name='Индентификатор',

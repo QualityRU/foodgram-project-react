@@ -3,7 +3,7 @@ from rest_framework import serializers
 from webcolors import hex_to_name
 
 
-def ColorFieldValidator(value):
+def validate_colorfield(value):
     try:
         data = hex_to_name(value)
     except ValueError:
@@ -11,7 +11,7 @@ def ColorFieldValidator(value):
     return data
 
 
-class ColorSerializerValidator(serializers.Field):
+class ColorFieldValidator(serializers.Field):
     def to_representation(self, value):
         return value
 
