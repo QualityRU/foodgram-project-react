@@ -1,4 +1,5 @@
-from rest_framework import mixins, permissions, status, viewsets
+from rest_framework import mixins, permissions, status, viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -8,8 +9,6 @@ from .serializers import (
     UserReadSerializer,
     UserSetPasswordSerializer,
 )
-
-DEFAULT_PERMISSION_CLASSES = (permissions.IsAuthenticated,)
 
 
 class UserViewSet(
@@ -21,7 +20,18 @@ class UserViewSet(
     """Представление пользователя."""
 
     queryset = User.objects.all()
-    permission_classes = (permissions.AllowAny,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('email', 'username')
+    filterset_fields = ('email', 'username')
+
+    def get_permissions(self):
+        """Определение доступа для действия с сериализатором."""
+        if self.action == "create":
+            return (permissions.AllowAny(),)
+        elif self.action == "set_password":
+            return (permissions.IsAuthenticated(),)
+        elif self.action in ('list', 'retrieve', 'me'):
+            return (permissions.IsAuthenticated(),)
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
@@ -34,7 +44,7 @@ class UserViewSet(
 
     @action(
         methods=('GET',),
-        permission_classes=DEFAULT_PERMISSION_CLASSES,
+        url_path='me',
         detail=False,
     )
     def me(self, request):
@@ -45,7 +55,6 @@ class UserViewSet(
     @action(
         methods=('POST',),
         serializer_class=UserSetPasswordSerializer,
-        permission_classes=DEFAULT_PERMISSION_CLASSES,
         detail=False,
     )
     def set_password(self, request):

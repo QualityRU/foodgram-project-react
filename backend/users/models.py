@@ -6,7 +6,7 @@ from .validators import validate_username
 
 
 class User(AbstractUser):
-    """Модель кастомного пользователя."""
+    """Модель пользователя."""
 
     email = models.EmailField(
         verbose_name='E-mail',

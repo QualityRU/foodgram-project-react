@@ -6,7 +6,7 @@ from .models import User, Follow
 
 
 class UserResource(ModelResource):
-    """Модель ресурсов кастомных пользователей."""
+    """Модель ресурсов пользователей."""
 
     class Meta:
         model = User
@@ -24,7 +24,7 @@ class UserResource(ModelResource):
 @admin.register(User)
 class UserAdmin(ImportExportModelAdmin):
     """
-    Регистрация модели кастомных пользователей
+    Регистрация модели пользователей
     и импорта/эскпорта в админ-панели.
     """
 

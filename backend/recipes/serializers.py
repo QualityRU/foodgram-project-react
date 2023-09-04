@@ -5,7 +5,7 @@ from .validators import ColorFieldValidator
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Recipe."""
+    """Сериализатор для рецептов."""
 
     class Meta:
         model = Recipe
@@ -13,7 +13,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Tag."""
+    """Сериализатор для тегов."""
 
     color = ColorFieldValidator()
 
@@ -23,7 +23,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Ingredient."""
+    """Сериализатор для ингридентов."""
 
     class Meta:
         model = Ingredient
