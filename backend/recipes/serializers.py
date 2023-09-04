@@ -20,6 +20,12 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
+        extra_kwargs = {
+            'id': {'required': True},
+            'name': {'required': True},
+            'color': {'required': True},
+            'slug': {'required': True},
+        }
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -28,3 +34,8 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
+        extra_kwargs = {
+            'id': {'required': True},
+            'name': {'required': True},
+            'measurement_unit': {'required': True},
+        }

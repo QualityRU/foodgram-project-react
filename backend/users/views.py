@@ -1,5 +1,5 @@
-from rest_framework import mixins, permissions, status, viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -26,12 +26,9 @@ class UserViewSet(
 
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
-        if self.action == "create":
+        if self.action == 'create':
             return (permissions.AllowAny(),)
-        elif self.action == "set_password":
-            return (permissions.IsAuthenticated(),)
-        elif self.action in ('list', 'retrieve', 'me'):
-            return (permissions.IsAuthenticated(),)
+        return (permissions.IsAuthenticated(),)
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
@@ -42,21 +39,13 @@ class UserViewSet(
         elif self.action in ('list', 'retrieve', 'me'):
             return UserReadSerializer
 
-    @action(
-        methods=('GET',),
-        url_path='me',
-        detail=False,
-    )
+    @action(['GET'], detail=False)
     def me(self, request):
         """Текущий пользователь."""
         serializer = self.get_serializer(request.user)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @action(
-        methods=('POST',),
-        serializer_class=UserSetPasswordSerializer,
-        detail=False,
-    )
+    @action(['POST'], detail=False)
     def set_password(self, request):
         """Изменение пароля пользователя."""
         user = request.user
@@ -79,3 +68,7 @@ class UserViewSet(
         return Response(
             data='Пароль успешно изменен', status=status.HTTP_204_NO_CONTENT
         )
+
+    @action(['GET'], detail=False)
+    def subscriptions(self, request):
+        ...

@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import User, Follow
+from .models import Follow, User
 
 
 class UserResource(ModelResource):
