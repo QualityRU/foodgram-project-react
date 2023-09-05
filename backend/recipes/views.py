@@ -2,14 +2,18 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, viewsets
 
 from .models import Ingredient, Recipe, Tag
-from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
+from .serializers import (
+    IngredientSerializer,
+    RecipeGetSerializer,
+    TagSerializer,
+)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Представление для рецептов."""
 
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    serializer_class = RecipeGetSerializer
     filter_backends = (DjangoFilterBackend,)
 
 

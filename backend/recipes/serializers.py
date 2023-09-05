@@ -1,15 +1,9 @@
+from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import Ingredient, Recipe, Tag
 from .validators import ColorFieldValidator
-
-
-class RecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для рецептов."""
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+from users.serializers import UserReadSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -41,13 +35,57 @@ class IngredientSerializer(serializers.ModelSerializer):
         }
 
 
-class RecipeShortShowSerializer(serializers.ModelSerializer):
+class RecipeGetSerializer(serializers.ModelSerializer):
+    """Сериализатор для рецептов."""
+
+    tags = TagSerializer(many=True, read_only=True)
+    author = UserReadSerializer(
+        default=serializers.CurrentUserDefault(), read_only=True
+    )
+    ingredients = IngredientSerializer(many=True, read_only=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )
         extra_kwargs = {
             'id': {'required': True},
+            'tags': {'required': True},
+            'author': {'required': True},
+            'ingredients': {'required': True},
+            'is_favorited': {'required': True},
+            'is_in_shopping_cart': {'required': True},
             'name': {'required': True},
             'image': {'required': True},
+            'text': {'required': True},
             'cooking_time': {'required': True},
         }
+
+    def get_is_favorited(self, recipe):
+        if not self.context.get('request'):
+            return False
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return recipe.favorite.filter(user=user).exists()
+
+    def get_is_in_shopping_cart(self, recipe):
+        if not self.context.get('request'):
+            return False
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return recipe.shoppingcart.filter(user=user).exists()

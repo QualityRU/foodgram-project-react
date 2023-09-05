@@ -1,10 +1,12 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import User
+from .models import Subscribe, User
 from .serializers import (
+    SubscribeSerializer,
     SubscriptionSerializer,
     UserCreateSerializer,
     UserReadSerializer,
@@ -41,6 +43,8 @@ class UserViewSet(
             return UserReadSerializer
         elif self.action == 'subscriptions':
             return SubscriptionSerializer
+        elif self.action == 'subscribe':
+            return SubscribeSerializer
 
     @action(['GET'], detail=False)
     def me(self, request):
@@ -74,10 +78,36 @@ class UserViewSet(
 
     @action(['GET'], detail=False)
     def subscriptions(self, request):
+        """Получение списка подписок пользователя."""
         user = request.user
-        followers = User.objects.filter(following__user=user)
-        page = self.paginate_queryset(followers)
+        subscribers = User.objects.filter(subscriber__user=user)
+        page = self.paginate_queryset(subscribers)
         serializer = self.get_serializer(
             instance=page, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
+
+    @action(['POST', 'DELETE'], detail=True)
+    def subscribe(self, request, pk=None):
+        """Добавление и удаление подписок пользователя."""
+
+        if request.method == 'POST':
+            serializer = self.get_serializer(
+                data=request.data, context={'request': request, 'id': pk}
+            )
+            serializer.is_valid(raise_exception=True)
+            response_data = serializer.save(id=pk)
+            return Response(
+                {'message': 'Подписка успешно создана', 'data': response_data},
+                status=status.HTTP_201_CREATED,
+            )
+        elif request.method == 'DELETE':
+            subscription = get_object_or_404(
+                Subscribe,
+                user=self.request.user,
+                author=get_object_or_404(User, pk=pk),
+            )
+            subscription.delete()
+            return Response(
+                {'Успешная отписка'}, status=status.HTTP_204_NO_CONTENT
+            )

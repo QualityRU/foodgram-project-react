@@ -1,10 +1,10 @@
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from .models import Subscribe, User
+from .models import User
 from .validators import UsernameFieldValidator
 from recipes.models import Recipe
-from recipes.serializers import RecipeShortShowSerializer
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -47,11 +47,11 @@ class UserReadSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, author):
-        request = self.context.get('request')
+        user = self.context.get('request').user
 
-        if not request or request.user.is_anonymous:
+        if not self.context.get('request') or user.is_anonymous:
             return False
-        return author.following.filter(user=request.user).exists()
+        return author.subscribe.filter(user=user).exists()
 
 
 class UserSetPasswordSerializer(serializers.Serializer):
@@ -67,6 +67,20 @@ class UserSetPasswordSerializer(serializers.Serializer):
         }
 
 
+class RecipeShortShowSerializer(serializers.ModelSerializer):
+    """Сериализатор для просмотра короткого рецепта."""
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+        extra_kwargs = {
+            'id': {'required': True},
+            'name': {'required': True},
+            'image': {'required': True},
+            'cooking_time': {'required': True},
+        }
+
+
 class SubscriptionSerializer(serializers.Serializer):
     """Сериализатор для просмотра подписок пользователя."""
 
@@ -75,23 +89,28 @@ class SubscriptionSerializer(serializers.Serializer):
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, author):
-        request = self.context.get('request')
-
-        if not request or request.user.is_anonymous:
+        if not self.context.get('request'):
             return False
-        return author.following.filter(user=request.user).exists()
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return author.subscribe.filter(user=user).exists()
 
     def get_recipes(self, author):
         request = self.context.get('request')
-
-        if not request or request.user.is_anonymous:
+        if not request:
+            return False
+        user = self.context.get('request').user
+        if user.is_anonymous:
             return False
 
-        recipes = Recipe.objects.filter(author=author)
+        recipes = author.recipes.filter(author=author)
         recipes_limit = request.query_params.get('recipes_limit')
 
         if recipes_limit:
             recipes = recipes[: int(recipes_limit)]
+        else:
+            recipes = recipes.all()
         return RecipeShortShowSerializer(
             instance=recipes, many=True, context={'request': request}
         ).data
@@ -121,3 +140,28 @@ class SubscriptionSerializer(serializers.Serializer):
             'recipes': {'required': True},
             'recipes_count': {'required': True},
         }
+
+
+class SubscribeSerializer(serializers.Serializer):
+    """Добавление и удаление подписок пользователя."""
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        author = get_object_or_404(User, pk=self.context.get('id'))
+        if user == author:
+            raise serializers.ValidationError(
+                'Вы не можете подписаться на себя самого'
+            )
+        if author.subscribe.filter(user=user).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны на этого пользователя'
+            )
+        return data
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        author = get_object_or_404(User, pk=validated_data['id'])
+        author.subscribe.create(user=user)
+        return SubscriptionSerializer(
+            author, context={'request': self.context.get('request')}
+        ).data

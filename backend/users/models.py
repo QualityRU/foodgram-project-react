@@ -65,13 +65,13 @@ class Subscribe(models.Model):
         User,
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
-        related_name='following',
+        related_name='subscriber',
     )
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        related_name='followers',
+        related_name='subscribe',
     )
 
     class Meta:
@@ -79,7 +79,7 @@ class Subscribe(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'author'], name='unique_follower'
+                fields=['user', 'author'], name='unique_subscribe'
             ),
             models.CheckConstraint(
                 check=~models.Q(author=models.F('user')),
