@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from .models import Subscribe, User
+from .models import User
 from .validators import UsernameFieldValidator
 from recipes.models import Recipe
 
@@ -44,7 +44,7 @@ class UserReadSerializer(UserSerializer):
 
         if not self.context.get('request') or user.is_anonymous:
             return False
-        return author.subscribe.filter(user=user).exists()
+        return author.subscribed.filter(user=user).exists()
 
 
 class UserSetPasswordSerializer(serializers.Serializer):
@@ -80,7 +80,7 @@ class SubscriptionSerializer(serializers.Serializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return author.subscribe.filter(user=user).exists()
+        return author.subscribed.filter(user=user).exists()
 
     def get_recipes(self, author):
         request = self.context.get('request')
@@ -105,7 +105,7 @@ class SubscriptionSerializer(serializers.Serializer):
         return author.recipes.count()
 
     class Meta:
-        model = Subscribe
+        model = User
         fields = (
             'email',
             'id',
@@ -128,7 +128,7 @@ class SubscribeSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'Вы не можете подписаться на себя самого'
             )
-        if author.subscribe.filter(user=user).exists():
+        if author.subscribed.filter(user=user).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого пользователя'
             )
@@ -137,7 +137,7 @@ class SubscribeSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.context.get('request').user
         author = get_object_or_404(User, pk=validated_data['id'])
-        author.subscribe.create(user=user)
+        author.subscribed.create(user=user)
         return SubscriptionSerializer(
             author, context={'request': self.context.get('request')}
         ).data

@@ -71,7 +71,7 @@ class Subscribe(models.Model):
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        related_name='subscribe',
+        related_name='subscribed',
     )
 
     class Meta:
