@@ -61,7 +61,7 @@ class User(AbstractUser):
 class Subscribe(models.Model):
     """Модель подписок на автора рецепта."""
 
-    follower = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
@@ -79,10 +79,10 @@ class Subscribe(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=['follower', 'author'], name='unique_follower'
+                fields=['user', 'author'], name='unique_follower'
             ),
             models.CheckConstraint(
-                check=~models.Q(author=models.F('follower')),
+                check=~models.Q(author=models.F('user')),
                 name='check_author',
             ),
         ]

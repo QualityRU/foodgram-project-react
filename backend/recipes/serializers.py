@@ -39,3 +39,15 @@ class IngredientSerializer(serializers.ModelSerializer):
             'name': {'required': True},
             'measurement_unit': {'required': True},
         }
+
+
+class RecipeShortShowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+        extra_kwargs = {
+            'id': {'required': True},
+            'name': {'required': True},
+            'image': {'required': True},
+            'cooking_time': {'required': True},
+        }

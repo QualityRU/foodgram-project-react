@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from .models import User
 from .serializers import (
+    SubscriptionSerializer,
     UserCreateSerializer,
     UserReadSerializer,
     UserSetPasswordSerializer,
@@ -38,6 +39,8 @@ class UserViewSet(
             return UserSetPasswordSerializer
         elif self.action in ('list', 'retrieve', 'me'):
             return UserReadSerializer
+        elif self.action == 'subscriptions':
+            return SubscriptionSerializer
 
     @action(['GET'], detail=False)
     def me(self, request):
@@ -71,4 +74,10 @@ class UserViewSet(
 
     @action(['GET'], detail=False)
     def subscriptions(self, request):
-        ...
+        user = request.user
+        followers = User.objects.filter(following__user=user)
+        page = self.paginate_queryset(followers)
+        serializer = self.get_serializer(
+            instance=page, many=True, context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)

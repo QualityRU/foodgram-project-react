@@ -49,7 +49,7 @@ class SubscribeResource(ModelResource):
         model = Subscribe
         fields = (
             'id',
-            'follower',
+            'user',
             'author',
         )
 
@@ -61,12 +61,12 @@ class SubscribeAdmin(ImportExportModelAdmin):
     resource_class = (SubscribeResource,)
     list_display = (
         'id',
-        'follower',
+        'user',
         'author',
     )
     list_filter = (
         'author',
-        'follower',
+        'user',
     )
     search_fields = [
         'user__username',
