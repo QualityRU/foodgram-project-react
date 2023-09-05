@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from .models import User
+from .models import Subscribe, User
 from .validators import UsernameFieldValidator
 from recipes.models import Recipe
 
@@ -21,13 +21,6 @@ class UserCreateSerializer(UserCreateSerializer):
             'last_name',
             'password',
         )
-        extra_kwargs = {
-            'email': {'required': True},
-            'username': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'password': {'required': True},
-        }
 
 
 class UserReadSerializer(UserSerializer):
@@ -60,12 +53,6 @@ class UserSetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True, write_only=True)
     current_password = serializers.CharField(required=True, write_only=True)
 
-    class Meta:
-        extra_kwargs = {
-            'new_password': {'required': True},
-            'current_password': {'required': True},
-        }
-
 
 class RecipeShortShowSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра короткого рецепта."""
@@ -73,17 +60,16 @@ class RecipeShortShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-        extra_kwargs = {
-            'id': {'required': True},
-            'name': {'required': True},
-            'image': {'required': True},
-            'cooking_time': {'required': True},
-        }
 
 
 class SubscriptionSerializer(serializers.Serializer):
     """Сериализатор для просмотра подписок пользователя."""
 
+    email = serializers.EmailField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+    username = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
@@ -119,7 +105,7 @@ class SubscriptionSerializer(serializers.Serializer):
         return author.recipes.count()
 
     class Meta:
-        model = User
+        model = Subscribe
         fields = (
             'email',
             'id',
@@ -130,20 +116,10 @@ class SubscriptionSerializer(serializers.Serializer):
             'recipes',
             'recipes_count',
         )
-        extra_kwargs = {
-            'email': {'required': True},
-            'id': {'required': True},
-            'username': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'is_subscribed': {'required': True},
-            'recipes': {'required': True},
-            'recipes_count': {'required': True},
-        }
 
 
 class SubscribeSerializer(serializers.Serializer):
-    """Добавление и удаление подписок пользователя."""
+    """Сериализатор для добавления и удаления подписок пользователя."""
 
     def validate(self, data):
         user = self.context.get('request').user

@@ -9,14 +9,6 @@ from .serializers import (
 )
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
-    """Представление для рецептов."""
-
-    queryset = Recipe.objects.all()
-    serializer_class = RecipeGetSerializer
-    filter_backends = (DjangoFilterBackend,)
-
-
 class TagViewSet(viewsets.ModelViewSet):
     """Представление для тегов."""
 
@@ -30,3 +22,28 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    """Представление для рецептов."""
+
+    queryset = Recipe.objects.all()
+    http_method_names = [
+        'get',
+        'post',
+        'patch',
+        'delete',
+    ]
+    serializer_class = RecipeGetSerializer
+    filter_backends = (DjangoFilterBackend,)
+
+    def get_permissions(self):
+        """Определение доступа для действия с сериализатором."""
+        if self.action == 'create':
+            return (permissions.AllowAny(),)
+        return (permissions.IsAuthenticated(),)
+
+    def get_serializer_class(self):
+        """Определение действия с сериализатором."""
+        if self.action in ('list', 'retrieve'):
+            return RecipeGetSerializer

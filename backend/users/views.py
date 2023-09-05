@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -14,15 +14,15 @@ from .serializers import (
 )
 
 
-class UserViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
-):
+class UserViewSet(viewsets.ModelViewSet):
     """Представление пользователя."""
 
     queryset = User.objects.all()
+    http_method_names = [
+        'get',
+        'post',
+        'delete',
+    ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('email', 'username')
     filterset_fields = ('email', 'username')

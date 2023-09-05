@@ -14,12 +14,6 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
-        extra_kwargs = {
-            'id': {'required': True},
-            'name': {'required': True},
-            'color': {'required': True},
-            'slug': {'required': True},
-        }
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -28,11 +22,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-        extra_kwargs = {
-            'id': {'required': True},
-            'name': {'required': True},
-            'measurement_unit': {'required': True},
-        }
 
 
 class RecipeGetSerializer(serializers.ModelSerializer):
@@ -61,18 +50,6 @@ class RecipeGetSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-        extra_kwargs = {
-            'id': {'required': True},
-            'tags': {'required': True},
-            'author': {'required': True},
-            'ingredients': {'required': True},
-            'is_favorited': {'required': True},
-            'is_in_shopping_cart': {'required': True},
-            'name': {'required': True},
-            'image': {'required': True},
-            'text': {'required': True},
-            'cooking_time': {'required': True},
-        }
 
     def get_is_favorited(self, recipe):
         if not self.context.get('request'):
