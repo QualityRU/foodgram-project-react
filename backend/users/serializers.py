@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import User
@@ -56,6 +57,8 @@ class UserSetPasswordSerializer(serializers.Serializer):
 
 class RecipeShortShowSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра короткого рецепта."""
+
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe
