@@ -1,9 +1,10 @@
+from django.shortcuts import get_object_or_404
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import Ingredient, Recipe, Tag
 from .validators import ColorFieldValidator
-from users.serializers import UserReadSerializer
+from users.serializers import UserListSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -24,11 +25,11 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class RecipeGetSerializer(serializers.ModelSerializer):
+class RecipeListSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов."""
 
     tags = TagSerializer(many=True, read_only=True)
-    author = UserReadSerializer(
+    author = UserListSerializer(
         default=serializers.CurrentUserDefault(), read_only=True
     )
     ingredients = IngredientSerializer(many=True, read_only=True)
@@ -52,17 +53,57 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, recipe):
-        if not self.context.get('request'):
-            return False
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
         return recipe.favorite.filter(user=user).exists()
 
     def get_is_in_shopping_cart(self, recipe):
-        if not self.context.get('request'):
-            return False
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
         return recipe.shoppingcart.filter(user=user).exists()
+
+
+class RecipeListShortSerializer(serializers.ModelSerializer):
+    """Сериализатор для просмотра короткого рецепта."""
+
+    image = Base64ImageField(required=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class FavoriteSerializer(serializers.Serializer):
+    """Сериализатор для добавления и удаления из избранных рецептов."""
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        recipe_id = self.context.get('recipe_id')
+        if user.favorite.filter(recipe_id=recipe_id).exists():
+            raise serializers.ValidationError(
+                'Вы уже добавили этот рецепт в избранное'
+            )
+        return data
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        recipe = get_object_or_404(Recipe, pk=validated_data.get('id'))
+        recipe.favorite.create(user=user)
+        return RecipeListShortSerializer(instance=recipe).data
+
+
+class ShoppingCartSerializer(serializers.Serializer):
+    """Сериализатор для добавления и удаления рецептов из корзины покупок."""
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        recipe_id = self.context.get('recipe_id')
+        if user.shoppingcart.filter(recipe_id=recipe_id).exists():
+            raise serializers.ValidationError(
+                'Вы уже добавили этот рецепт в список покупок'
+            )
+        return data
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        recipe = get_object_or_404(Recipe, pk=validated_data.get('id'))
+        recipe.shoppingcart.create(user=user)
+        return RecipeListShortSerializer(instance=recipe).data

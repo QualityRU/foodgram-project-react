@@ -24,7 +24,7 @@ class UserCreateSerializer(UserCreateSerializer):
         )
 
 
-class UserReadSerializer(UserSerializer):
+class UserListSerializer(UserSerializer):
     """Сериализатор для чтения полей пользователя."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
@@ -42,9 +42,6 @@ class UserReadSerializer(UserSerializer):
 
     def get_is_subscribed(self, author):
         user = self.context.get('request').user
-
-        if not self.context.get('request') or user.is_anonymous:
-            return False
         return author.subscribed.filter(user=user).exists()
 
 
@@ -55,7 +52,7 @@ class UserSetPasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(required=True, write_only=True)
 
 
-class RecipeShortShowSerializer(serializers.ModelSerializer):
+class RecipeListShortSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра короткого рецепта."""
 
     image = Base64ImageField(required=True)
@@ -78,21 +75,11 @@ class SubscriptionSerializer(serializers.Serializer):
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, author):
-        if not self.context.get('request'):
-            return False
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
         return author.subscribed.filter(user=user).exists()
 
     def get_recipes(self, author):
         request = self.context.get('request')
-        if not request:
-            return False
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-
         recipes = author.recipes.filter(author=author)
         recipes_limit = request.query_params.get('recipes_limit')
 
@@ -100,9 +87,7 @@ class SubscriptionSerializer(serializers.Serializer):
             recipes = recipes[: int(recipes_limit)]
         else:
             recipes = recipes.all()
-        return RecipeShortShowSerializer(
-            instance=recipes, many=True, context={'request': request}
-        ).data
+        return RecipeListShortSerializer(instance=recipes).data
 
     def get_recipes_count(self, author):
         return author.recipes.count()
@@ -141,6 +126,4 @@ class SubscribeSerializer(serializers.Serializer):
         user = self.context.get('request').user
         author = get_object_or_404(User, pk=validated_data['id'])
         author.subscribed.create(user=user)
-        return SubscriptionSerializer(
-            author, context={'request': self.context.get('request')}
-        ).data
+        return SubscriptionSerializer(instance=author).data

@@ -7,5 +7,6 @@ djoser==2.2.0
 drf-base64==2.0
 Pillow==10.0.0
 pip==23.2.1
+psycopg2_binary==2.9.7
 python-dotenv==1.0.0
 webcolors==1.13

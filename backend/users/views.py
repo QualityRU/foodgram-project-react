@@ -9,7 +9,7 @@ from .serializers import (
     SubscribeSerializer,
     SubscriptionSerializer,
     UserCreateSerializer,
-    UserReadSerializer,
+    UserListSerializer,
     UserSetPasswordSerializer,
 )
 
@@ -37,24 +37,26 @@ class UserViewSet(viewsets.ModelViewSet):
         """Определение действия с сериализатором."""
         if self.action == 'create':
             return UserCreateSerializer
-        elif self.action == 'set_password':
+        if self.action in ('list', 'retrieve', 'me'):
+            return UserListSerializer
+        if self.action == 'set_password':
             return UserSetPasswordSerializer
-        elif self.action in ('list', 'retrieve', 'me'):
-            return UserReadSerializer
-        elif self.action == 'subscriptions':
+        if self.action == 'subscriptions':
             return SubscriptionSerializer
-        elif self.action == 'subscribe':
+        if self.action == 'subscribe':
             return SubscribeSerializer
 
     @action(['GET'], detail=False)
     def me(self, request):
         """Текущий пользователь."""
+
         serializer = self.get_serializer(request.user)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(['POST'], detail=False)
     def set_password(self, request):
         """Изменение пароля пользователя."""
+
         user = request.user
         serializer = self.get_serializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -79,6 +81,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(['GET'], detail=False)
     def subscriptions(self, request):
         """Получение списка подписок пользователя."""
+
         user = request.user
         subscribers = User.objects.filter(subscriber__user=user)
         page = self.paginate_queryset(subscribers)
@@ -90,23 +93,23 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(['POST', 'DELETE'], detail=True)
     def subscribe(self, request, pk=None):
         """Добавление и удаление подписок пользователя."""
-        if request.method == 'POST':
-            serializer = self.get_serializer(
-                data=request.data, context={'request': request, 'id': pk}
-            )
-            serializer.is_valid(raise_exception=True)
-            response_data = serializer.save(id=pk)
-            return Response(
-                {'message': 'Подписка успешно создана', 'data': response_data},
-                status=status.HTTP_201_CREATED,
-            )
-        elif request.method == 'DELETE':
-            subscription = get_object_or_404(
-                Subscribe,
-                user=self.request.user,
-                author=get_object_or_404(User, pk=pk),
-            )
-            subscription.delete()
-            return Response(
-                {'Успешная отписка'}, status=status.HTTP_204_NO_CONTENT
-            )
+
+        if self.request.method == 'POST':
+            return self.subscribe_post(request, pk)
+        if self.request.method == 'DELETE':
+            return self.subscribe_delete(pk)
+
+    def subscribe_post(self, request, pk):
+        serializer = self.get_serializer(
+            data=request.data, context={'request': request, 'id': pk}
+        )
+        serializer.is_valid(raise_exception=True)
+        response_data = serializer.save(id=pk)
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
+
+    def subscribe_delete(self, pk):
+        user = self.request.user
+        author = get_object_or_404(User, pk=pk)
+        subscribe = get_object_or_404(Subscribe, user=user, author=author)
+        subscribe.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

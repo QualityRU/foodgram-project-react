@@ -1,12 +1,12 @@
-from django_filters import filters
+import django_filters
 
 from .models import Ingredient
 
 
-class IngredientFilter(filters.FilterSet):
+class IngredientFilter(django_filters.FilterSet):
     """Фильтрация ингредиентов по названию."""
 
-    name = filters.CharFilter(
+    name = django_filters.CharFilter(
         field_name='name',
         lookup_expr='istartswith',
     )

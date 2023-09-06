@@ -15,7 +15,7 @@ services:
 
   backend:
     env_file: .env
-    build: ./backend/
+    image: qualityru/foodgram_backend
     volumes:
       - static:/app/static/
       - media:/app/media/
@@ -24,13 +24,13 @@ services:
     restart: always
 
   frontend:
-    build: ./frontend/
+    image: qualityru/foodgram_frontend
     command: cp -r /app/build/. /app/static/
     volumes:
       - static:/app/static/
 
   gateway:
-    build: ./nginx/
+    image: qualityru/foodgram_gateway
     ports:
       - 80:80
     volumes:
