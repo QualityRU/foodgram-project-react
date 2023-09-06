@@ -90,7 +90,6 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(['POST', 'DELETE'], detail=True)
     def subscribe(self, request, pk=None):
         """Добавление и удаление подписок пользователя."""
-
         if request.method == 'POST':
             serializer = self.get_serializer(
                 data=request.data, context={'request': request, 'id': pk}
