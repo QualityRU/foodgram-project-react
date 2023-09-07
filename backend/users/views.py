@@ -83,10 +83,10 @@ class UserViewSet(viewsets.ModelViewSet):
         """Получение списка подписок пользователя."""
 
         user = request.user
-        subscribers = User.objects.filter(subscriber__user=user)
+        subscribers = User.objects.filter(subscribed__user=user)
         page = self.paginate_queryset(subscribers)
         serializer = self.get_serializer(
-            instance=page, many=True, context={'request': request}
+            instance=page, context={'request': request}, many=True
         )
         return self.get_paginated_response(serializer.data)
 

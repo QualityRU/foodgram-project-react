@@ -141,4 +141,6 @@ class SubscribeSerializer(serializers.Serializer):
         user = self.context.get('request').user
         author = get_object_or_404(User, pk=validated_data.get('id'))
         author.subscribed.create(user=user)
-        return SubscriptionSerializer(instance=author).data
+        return SubscriptionSerializer(
+            instance=author, context={'request': self.context.get('request')}
+        ).data

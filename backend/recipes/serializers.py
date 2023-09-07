@@ -95,7 +95,9 @@ class FavoriteSerializer(serializers.Serializer):
         user = self.context.get('request').user
         recipe = get_object_or_404(Recipe, pk=validated_data.get('id'))
         recipe.favorite.create(user=user)
-        return RecipeListShortSerializer(instance=recipe).data
+        return RecipeListShortSerializer(
+            instance=recipe, context={'request': self.context.get('request')}
+        ).data
 
 
 class ShoppingCartSerializer(serializers.Serializer):
@@ -114,4 +116,6 @@ class ShoppingCartSerializer(serializers.Serializer):
         user = self.context.get('request').user
         recipe = get_object_or_404(Recipe, pk=validated_data.get('id'))
         recipe.shoppingcart.create(user=user)
-        return RecipeListShortSerializer(instance=recipe).data
+        return RecipeListShortSerializer(
+            instance=recipe, context={'request': self.context.get('request')}
+        ).data
