@@ -79,6 +79,10 @@ class RecipeListShortSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для cоздания и обновления рецептов."""
+
+
 class FavoriteSerializer(serializers.Serializer):
     """Сериализатор для добавления и удаления из избранных рецептов."""
 

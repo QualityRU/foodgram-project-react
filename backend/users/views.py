@@ -29,9 +29,17 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
+        if self.action in (
+            'list',
+            'retrieve',
+            'me',
+            'set_password',
+            'subscriptions',
+            'subscribe',
+        ):
+            return (permissions.IsAuthenticated(),)
         if self.action == 'create':
             return (permissions.AllowAny(),)
-        return (permissions.IsAuthenticated(),)
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""

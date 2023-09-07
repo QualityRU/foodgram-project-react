@@ -4,11 +4,12 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
 from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from .serializers import (
     FavoriteSerializer,
     IngredientSerializer,
+    RecipeCreateSerializer,
     RecipeListSerializer,
     ShoppingCartSerializer,
     TagSerializer,
@@ -20,7 +21,6 @@ class TagViewSet(viewsets.ModelViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (permissions.AllowAny,)
     pagination_class = None
 
 
@@ -29,7 +29,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (permissions.AllowAny,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
@@ -46,11 +45,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
         'delete',
     ]
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
+
+    def get_permissions(self):
+        """Определение доступа для действия с сериализатором."""
+        if self.action in (
+            'create',
+            'partial_update',
+            'favorite',
+            'shopping_cart',
+        ):
+            return (permissions.IsAuthenticated(),)
+        if self.action in ('list', 'retrieve'):
+            return (permissions.AllowAny(),)
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
-        if self.action == 'create':
-            ...
+        if self.action in ('create', 'partial_update'):
+            RecipeCreateSerializer
         if self.action in ('list', 'retrieve'):
             return RecipeListSerializer
         if self.action == 'favorite':
