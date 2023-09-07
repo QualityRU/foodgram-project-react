@@ -263,8 +263,13 @@ function App() {
               onSignUp={registration}
             />
           </Route>
-          <Route path='/'>
+          {/* <Route path='/'>
             {loggedIn ? <Redirect to='/recipes' /> : <Redirect to='/signin'/>}
+          </Route> */}
+          <Route path='/'>
+            <Main
+              updateOrders={updateOrders}
+            />
           </Route>
         </Switch>
         <Footer />
