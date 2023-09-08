@@ -37,21 +37,22 @@ class UserViewSet(viewsets.ModelViewSet):
             'subscriptions',
             'subscribe',
         ):
-            return (permissions.IsAuthenticated(),)
-        if self.action == 'create':
-            return (permissions.AllowAny(),)
+            return [permissions.IsAuthenticated()]
+        elif self.action == 'create':
+            return [permissions.AllowAny()]
+        return []
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
         if self.action == 'create':
             return UserCreateSerializer
-        if self.action in ('list', 'retrieve', 'me'):
+        elif self.action in ('list', 'retrieve', 'me'):
             return UserListSerializer
-        if self.action == 'set_password':
+        elif self.action == 'set_password':
             return UserSetPasswordSerializer
-        if self.action == 'subscriptions':
+        elif self.action == 'subscriptions':
             return SubscriptionSerializer
-        if self.action == 'subscribe':
+        elif self.action == 'subscribe':
             return SubscribeSerializer
 
     @action(['GET'], detail=False)
@@ -103,21 +104,16 @@ class UserViewSet(viewsets.ModelViewSet):
         """Добавление и удаление подписок пользователя."""
 
         if self.request.method == 'POST':
-            return self.subscribe_post(request, pk)
-        if self.request.method == 'DELETE':
-            return self.subscribe_delete(pk)
+            serializer = self.get_serializer(
+                data=request.data, context={'request': request, 'id': pk}
+            )
+            serializer.is_valid(raise_exception=True)
+            response_data = serializer.save(id=pk)
+            return Response(data=response_data, status=status.HTTP_201_CREATED)
 
-    def subscribe_post(self, request, pk):
-        serializer = self.get_serializer(
-            data=request.data, context={'request': request, 'id': pk}
-        )
-        serializer.is_valid(raise_exception=True)
-        response_data = serializer.save(id=pk)
-        return Response(data=response_data, status=status.HTTP_201_CREATED)
-
-    def subscribe_delete(self, pk):
-        user = self.request.user
-        author = get_object_or_404(User, pk=pk)
-        subscribe = get_object_or_404(Subscribe, user=user, author=author)
-        subscribe.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        elif self.request.method == 'DELETE':
+            user = self.request.user
+            author = get_object_or_404(User, pk=pk)
+            subscribe = get_object_or_404(Subscribe, user=user, author=author)
+            subscribe.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

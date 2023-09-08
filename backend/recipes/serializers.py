@@ -7,7 +7,6 @@ from .validators import ColorFieldValidator
 from users.serializers import UserListSerializer
 
 
-
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор для тегов."""
 
@@ -54,19 +53,15 @@ class RecipeListSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, recipe):
-        if not self.context.get('request'):
-            return False
         user = self.context.get('request').user
         if user.is_anonymous:
-            return False
+            return None
         return recipe.favorite.filter(user=user).exists()
 
     def get_is_in_shopping_cart(self, recipe):
-        if not self.context.get('request'):
-            return False
         user = self.context.get('request').user
         if user.is_anonymous:
-            return False
+            return None
         return recipe.shoppingcart.filter(user=user).exists()
 
 

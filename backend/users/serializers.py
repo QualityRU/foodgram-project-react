@@ -40,11 +40,20 @@ class UserListSerializer(UserSerializer):
             'is_subscribed',
         )
 
-    def get_is_subscribed(self, author):
+    def to_representation(self, instance):
         user = self.context.get('request').user
 
-        if not self.context.get('request') or user.is_anonymous:
-            return False
+        if user.is_authenticated and user != instance:
+            return super().to_representation(instance)
+        else:
+            data = super().to_representation(instance)
+            data['email'], data['username'] = None, None
+            return data
+
+    def get_is_subscribed(self, author):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return None
         return author.subscribed.filter(user=user).exists()
 
 
@@ -78,20 +87,16 @@ class SubscriptionSerializer(serializers.Serializer):
     recipes_count = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, author):
-        if not self.context.get('request'):
-            return False
         user = self.context.get('request').user
         if user.is_anonymous:
-            return False
+            return None
         return author.subscribed.filter(user=user).exists()
 
     def get_recipes(self, author):
         request = self.context.get('request')
-        if not request:
-            return False
         user = self.context.get('request').user
         if user.is_anonymous:
-            return False
+            return None
 
         recipes = author.recipes.filter(author=author)
         recipes_limit = request.query_params.get('recipes_limit')
