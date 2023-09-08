@@ -1,8 +1,6 @@
-import rest_framework
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -16,9 +14,6 @@ from .serializers import (
     ShoppingCartSerializer,
     TagSerializer,
 )
-
-ANONIM_PERMISSION = eval(settings.REST_FRAMEWORK.get('PERMISSION_ANONIM')[0])
-PERMISSION = eval(settings.REST_FRAMEWORK.get('DEFAULT_PERMISSION_CLASSES')[0])
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -54,31 +49,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
-
-        permissions_by_action = {
-            'create': (PERMISSION(),),
-            'partial_update': (PERMISSION(),),
-            'favorite': (PERMISSION(),),
-            'shopping_cart': (PERMISSION(),),
-            'list': (ANONIM_PERMISSION(),),
-            'retrieve': (ANONIM_PERMISSION(),),
-        }
-        return permissions_by_action.get(self.action, (PERMISSION(),))
+        if self.action in (
+            'create',
+            'partial_update',
+            'favorite',
+            'shopping_cart',
+        ):
+            return (permissions.IsAuthenticated(),)
+        if self.action in ('list', 'retrieve'):
+            return (permissions.AllowAny(),)
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
-
-        serializer_class_by_action = {
-            'create': RecipeCreateSerializer,
-            'partial_update': RecipeCreateSerializer,
-            'list': RecipeListSerializer,
-            'retrieve': RecipeListSerializer,
-            'favorite': FavoriteSerializer,
-            'shopping_cart': ShoppingCartSerializer,
-        }
-        return serializer_class_by_action.get(
-            self.action, RecipeListSerializer
-        )
+        if self.action in ('create', 'partial_update'):
+            RecipeCreateSerializer
+        if self.action in ('list', 'retrieve'):
+            return RecipeListSerializer
+        if self.action == 'favorite':
+            return FavoriteSerializer
+        if self.action == 'shopping_cart':
+            return ShoppingCartSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
