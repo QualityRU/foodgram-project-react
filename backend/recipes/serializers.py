@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
-from .models import Ingredient, Recipe, Tag
+from .models import Ingredient, IngredientAmount, Recipe, Tag
 from .validators import ColorFieldValidator
 from users.serializers import UserListSerializer
 
@@ -25,6 +25,27 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
+class IngredientAmountSerializer(serializers.ModelSerializer):
+    """Сериализатор для ингридентов с количеством."""
+
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
+
+    class Meta:
+        model = IngredientAmount
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Ингредиентов не может быть меньше 1!'
+            )
+        return value
+
+
 class RecipeListSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов."""
 
@@ -32,7 +53,9 @@ class RecipeListSerializer(serializers.ModelSerializer):
     author = UserListSerializer(
         default=serializers.CurrentUserDefault(), read_only=True
     )
-    ingredients = IngredientSerializer(many=True, read_only=True)
+    ingredients = IngredientAmountSerializer(
+        many=True, source='ingredient_amount', read_only=True
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField(required=True)
