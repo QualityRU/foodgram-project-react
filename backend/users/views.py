@@ -1,8 +1,6 @@
-import rest_framework
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -13,11 +11,6 @@ from .serializers import (
     UserCreateSerializer,
     UserListSerializer,
     UserSetPasswordSerializer,
-)
-
-ANONIM_PERMISSION = eval(settings.REST_FRAMEWORK.get('PERMISSION_ANONIM')[0])
-PERMISSION = eval(
-    settings.REST_FRAMEWORK.get('DEFAULT_PERMISSION_CLASSES')[0]
 )
 
 
@@ -36,31 +29,30 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
-
-        permissions_by_action = {
-            'list': (PERMISSION(),),
-            'retrieve': (PERMISSION(),),
-            'me': (PERMISSION(),),
-            'set_password': (PERMISSION(),),
-            'subscriptions': (PERMISSION(),),
-            'subscribe': (PERMISSION(),),
-            'create': (ANONIM_PERMISSION(),),
-        }
-        return permissions_by_action.get(self.action, (PERMISSION(),))
+        if self.action in (
+            'list',
+            'retrieve',
+            'me',
+            'set_password',
+            'subscriptions',
+            'subscribe',
+        ):
+            return (permissions.IsAuthenticated(),)
+        if self.action == 'create':
+            return (permissions.AllowAny(),)
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
-
-        serializer_class_by_action = {
-            'list': UserListSerializer,
-            'retrieve': UserListSerializer,
-            'me': UserListSerializer,
-            'set_password': UserSetPasswordSerializer,
-            'subscriptions': SubscriptionSerializer,
-            'subscribe': SubscribeSerializer,
-            'create': UserCreateSerializer,
-        }
-        return serializer_class_by_action.get(self.action, UserListSerializer)
+        if self.action == 'create':
+            return UserCreateSerializer
+        if self.action in ('list', 'retrieve', 'me'):
+            return UserListSerializer
+        if self.action == 'set_password':
+            return UserSetPasswordSerializer
+        if self.action == 'subscriptions':
+            return SubscriptionSerializer
+        if self.action == 'subscribe':
+            return SubscribeSerializer
 
     @action(['GET'], detail=False)
     def me(self, request):
