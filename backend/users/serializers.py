@@ -68,11 +68,11 @@ class RecipeListShortSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.Serializer):
     """Сериализатор для просмотра подписок пользователя."""
 
-    email = serializers.EmailField(read_only=True)
-    id = serializers.IntegerField(read_only=True)
-    username = serializers.CharField(read_only=True)
-    first_name = serializers.CharField(read_only=True)
-    last_name = serializers.CharField(read_only=True)
+    email = serializers.EmailField()
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
