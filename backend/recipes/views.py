@@ -49,6 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
+
         if self.action in (
             'create',
             'partial_update',
@@ -58,10 +59,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated()]
         elif self.action in ('list', 'retrieve'):
             return [permissions.AllowAny()]
-        return []
+        return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
+
         if self.action in ('create', 'partial_update'):
             RecipeCreateSerializer
         elif self.action in ('list', 'retrieve'):
@@ -70,6 +72,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return FavoriteSerializer
         elif self.action == 'shopping_cart':
             return ShoppingCartSerializer
+        return RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

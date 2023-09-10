@@ -21,3 +21,37 @@ class ColorFieldValidator(serializers.Field):
         except ValueError:
             raise serializers.ValidationError('Такого цвета нет!')
         return data
+
+
+class CookingTimeRecipeFieldValidator(serializers.Field):
+    def to_representation(self, value):
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            if int(data) <= 0:
+                raise serializers.ValidationError(
+                    'Время приготовления должно быть больше 0'
+                )
+        except ValueError:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть указано цифрой'
+            )
+        return data
+
+
+class AmountIngredientFieldValidator(serializers.Field):
+    def to_representation(self, value):
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            if int(data) <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиентов не может быть меньше 1'
+                )
+        except ValueError:
+            raise serializers.ValidationError(
+                'Количество ингредиентов должно быть указано цифрой'
+            )
+        return data

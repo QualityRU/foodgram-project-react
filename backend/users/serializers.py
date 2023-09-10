@@ -43,7 +43,7 @@ class UserListSerializer(UserSerializer):
     def to_representation(self, instance):
         user = self.context.get('request').user
 
-        if user.is_authenticated and user != instance:
+        if user.is_authenticated:
             return super().to_representation(instance)
         else:
             data = super().to_representation(instance)
