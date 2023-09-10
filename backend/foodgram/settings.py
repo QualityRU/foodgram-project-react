@@ -101,7 +101,6 @@ else:
             'NAME': getenv('POSTGRES_DB', 'django'),
             'USER': getenv('POSTGRES_USER', 'django'),
             'PASSWORD': getenv('POSTGRES_PASSWORD', ''),
-            'NAME': getenv('DB_NAME', 'default'),
             'HOST': getenv('DB_HOST', ''),
             'PORT': getenv('DB_PORT', 5432),
         }
