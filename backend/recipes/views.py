@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
@@ -14,6 +15,7 @@ from .serializers import (
     ShoppingCartSerializer,
     TagSerializer,
 )
+from .utils import create_shopping_list
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -55,6 +57,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'partial_update',
             'favorite',
             'shopping_cart',
+            'download_shopping_cart',
         ):
             return [permissions.IsAuthenticated()]
         elif self.action in ('list', 'retrieve'):
@@ -64,7 +67,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
 
-        if self.action in ('create', 'partial_update'):
+        if self.action in (
+            'create',
+            'partial_update',
+            'download_shopping_cart',
+        ):
             RecipeCreateSerializer
         elif self.action in ('list', 'retrieve'):
             return RecipeListSerializer
@@ -115,3 +122,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe = get_object_or_404(Recipe, pk=pk)
             get_object_or_404(ShoppingCart, user=user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(['GET'], detail=False)
+    def download_shopping_cart(self, request):
+        """Скачивание списка покупок."""
+
+        shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
+        buy_list_text = create_shopping_list(shopping_cart)
+        response = HttpResponse(buy_list_text, content_type='text/plain')
+        response[
+            'Content-Disposition'
+        ] = 'attachment; filename=shopping_list.txt'
+        return response
