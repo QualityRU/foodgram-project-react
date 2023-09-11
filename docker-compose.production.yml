@@ -16,9 +16,7 @@ services:
   backend:
     env_file: .env
     image: qualityru/foodgram_backend:latest
-    command:
-      - cp -r /app/docs/. /app/static/api/docs/
-      - cp -r /app/data/.  /app/static/data/
+    command: cp -r /app/docs/. /app/static/api/docs/
     volumes:
       - static:/app/static/
       - media:/app/media/
