@@ -16,6 +16,8 @@ services:
   backend:
     env_file: .env
     build: ./backend/
+    command: cp -r /app/docs/. /app/static/api/docs/
+
     volumes:
       - static:/app/static/
       - media:/app/media/
@@ -36,7 +38,6 @@ services:
     volumes:
       - static:/app/static/
       - media:/app/media/
-      - ./docs/:/app/static/api/docs/
     depends_on:
       - backend
       - frontend
