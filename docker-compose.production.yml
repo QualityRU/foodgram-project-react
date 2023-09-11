@@ -16,6 +16,9 @@ services:
   backend:
     env_file: .env
     image: qualityru/foodgram_backend:latest
+    command:
+      - cp -r /app/docs/. /app/static/api/docs/
+      - cp -r /app/data/.  /app/static/data/
     volumes:
       - static:/app/static/
       - media:/app/media/
@@ -36,7 +39,6 @@ services:
     volumes:
       - static:/app/static/
       - media:/app/media/
-      - ./docs/:/app/static/api/docs/
     depends_on:
       - backend
       - frontend
