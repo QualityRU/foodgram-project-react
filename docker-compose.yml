@@ -16,7 +16,6 @@ services:
   backend:
     env_file: .env
     build: ./backend/
-    command: cp -r /app/docs/. /app/static/api/docs/
 
     volumes:
       - static:/app/static/
