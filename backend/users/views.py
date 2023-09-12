@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -14,15 +14,15 @@ from .serializers import (
 )
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """Представление пользователя."""
+class UserViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Представление для пользователя."""
 
     queryset = User.objects.all()
-    http_method_names = [
-        'get',
-        'post',
-        'delete',
-    ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('email', 'username')
     filterset_fields = ('email', 'username')
@@ -30,32 +30,32 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
 
-        if self.action in (
-            'list',
-            'retrieve',
-            'me',
-            'set_password',
-            'subscriptions',
-            'subscribe',
-        ):
-            return [permissions.IsAuthenticated()]
-        elif self.action == 'create':
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+        permissions_dict = {
+            'list': [permissions.IsAuthenticated()],
+            'retrieve': [permissions.IsAuthenticated()],
+            'me': [permissions.IsAuthenticated()],
+            'set_password': [permissions.IsAuthenticated()],
+            'subscriptions': [permissions.IsAuthenticated()],
+            'subscribe': [permissions.IsAuthenticated()],
+            'create': [permissions.AllowAny()],
+        }
+        return permissions_dict.get(
+            self.action, [permissions.IsAuthenticated()]
+        )
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
 
-        if self.action == 'create':
-            return UserCreateSerializer
-        elif self.action in ('list', 'retrieve', 'me'):
-            return UserListSerializer
-        elif self.action == 'set_password':
-            return UserSetPasswordSerializer
-        elif self.action == 'subscriptions':
-            return SubscriptionSerializer
-        elif self.action == 'subscribe':
-            return SubscribeSerializer
+        serializer_class_dict = {
+            'create': UserCreateSerializer,
+            'list': UserListSerializer,
+            'retrieve': UserListSerializer,
+            'me': UserListSerializer,
+            'set_password': UserSetPasswordSerializer,
+            'subscriptions': SubscriptionSerializer,
+            'subscribe': SubscribeSerializer,
+        }
+        return serializer_class_dict.get(self.action)
 
     @action(['GET'], detail=False)
     def me(self, request):

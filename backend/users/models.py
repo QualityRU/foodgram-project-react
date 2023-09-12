@@ -13,11 +13,11 @@ class User(AbstractUser):
         unique=True,
         blank=False,
         max_length=254,
-        validators=[
+        validators=(
             EmailValidator(
                 message='Некорректный e-mail!',
             ),
-        ],
+        ),
         error_messages={
             'unique': 'Пользователь с таким e-mail уже создан!',
         },
@@ -26,7 +26,7 @@ class User(AbstractUser):
         verbose_name='Username',
         unique=True,
         max_length=150,
-        validators=[validate_username],
+        validators=(validate_username,),
         error_messages={
             'unique': 'Пользователь с таким username уже создан!',
         },
@@ -38,22 +38,26 @@ class User(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [
+    REQUIRED_FIELDS = (
         'username',
         'first_name',
         'last_name',
         'password',
-    ]
+    )
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ['email']
-        constraints = [
+        ordering = ('email',)
+        constraints = (
             models.UniqueConstraint(
-                fields=['username', 'email'], name='unique_username'
-            )
-        ]
+                fields=(
+                    'username',
+                    'email',
+                ),
+                name='unique_username',
+            ),
+        )
 
     def __str__(self):
         return f'{self.username} ({self.email})'
@@ -78,15 +82,19 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
-                fields=['user', 'author'], name='unique_subscribe'
+                fields=(
+                    'user',
+                    'author',
+                ),
+                name='unique_subscribe',
             ),
             models.CheckConstraint(
                 check=~models.Q(author=models.F('user')),
                 name='check_author',
             ),
-        ]
+        )
 
     def __str__(self):
         return f'{self.user} подписан на {self.author}'

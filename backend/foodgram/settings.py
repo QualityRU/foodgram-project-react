@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'import_export',
     'djoser',
     'admin_reorder',
+    'colorfield',
     'api',
     'recipes',
     'users',

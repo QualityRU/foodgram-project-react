@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -15,7 +15,7 @@ from .serializers import (
     ShoppingCartSerializer,
     TagSerializer,
 )
-from .utils import create_shopping_list
+from .utils import create_shopping_list_pdf
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -36,50 +36,49 @@ class IngredientViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     """Представление для рецептов."""
 
     queryset = Recipe.objects.all()
-    http_method_names = [
-        'get',
-        'post',
-        'patch',
-        'delete',
-    ]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def get_permissions(self):
         """Определение доступа для действия с сериализатором."""
 
-        if self.action in (
-            'create',
-            'partial_update',
-            'favorite',
-            'shopping_cart',
-            'download_shopping_cart',
-        ):
-            return [permissions.IsAuthenticated()]
-        elif self.action in ('list', 'retrieve'):
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+        permissions_dict = {
+            'create': [permissions.IsAuthenticated()],
+            'partial_update': [permissions.IsAuthenticated()],
+            'favorite': [permissions.IsAuthenticated()],
+            'shopping_cart': [permissions.IsAuthenticated()],
+            'download_shopping_cart': [permissions.IsAuthenticated()],
+            'list': [permissions.AllowAny()],
+            'retrieve': [permissions.AllowAny()],
+        }
+        return permissions_dict.get(
+            self.action, [permissions.IsAuthenticated()]
+        )
 
     def get_serializer_class(self):
         """Определение действия с сериализатором."""
 
-        if self.action in (
-            'create',
-            'partial_update',
-            'download_shopping_cart',
-        ):
-            RecipeCreateSerializer
-        elif self.action in ('list', 'retrieve'):
-            return RecipeListSerializer
-        elif self.action == 'favorite':
-            return FavoriteSerializer
-        elif self.action == 'shopping_cart':
-            return ShoppingCartSerializer
-        return RecipeCreateSerializer
+        serializer_class_dict = {
+            'create': RecipeCreateSerializer,
+            'partial_update': RecipeCreateSerializer,
+            'download_shopping_cart': RecipeCreateSerializer,
+            'list': RecipeListSerializer,
+            'retrieve': RecipeListSerializer,
+            'favorite': FavoriteSerializer,
+            'shopping_cart': ShoppingCartSerializer,
+        }
+        return serializer_class_dict.get(self.action, RecipeCreateSerializer)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -128,9 +127,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Скачивание списка покупок."""
 
         shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
-        buy_list_text = create_shopping_list(shopping_cart)
-        response = HttpResponse(buy_list_text, content_type='text/plain')
+        buy_list_pdf = create_shopping_list_pdf(shopping_cart)
+        response = HttpResponse(buy_list_pdf, content_type='application/pdf')
         response[
             'Content-Disposition'
-        ] = 'attachment; filename=shopping_list.txt'
+        ] = 'attachment; filename=shopping_list.pdf'
         return response

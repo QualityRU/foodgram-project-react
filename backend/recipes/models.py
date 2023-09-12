@@ -1,7 +1,8 @@
+from colorfield.fields import ColorField
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.forms import ValidationError
 
-from .validators import validate_colorfield
 from users.models import User
 
 
@@ -39,12 +40,13 @@ class Tag(models.Model):
         blank=False,
         max_length=200,
     )
-    color = models.CharField(
+    color = ColorField(
+        format='hex',
+        default='#FF0000',
         verbose_name='Цвет',
         unique=True,
         blank=False,
         max_length=7,
-        validators=[validate_colorfield],
     )
     slug = models.SlugField(
         verbose_name='Индентификатор',
@@ -95,12 +97,12 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
         blank=False,
-        validators=[
+        validators=(
             MinValueValidator(
                 limit_value=1,
                 message='Время приготовления не может быть меньше 1 минуты!',
-            )
-        ],
+            ),
+        ),
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -114,6 +116,17 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        ingredients = self.ingredients.all()
+        unique_ingredients = set()
+        for ingredient in ingredients:
+            if ingredient in unique_ingredients:
+                raise ValidationError(
+                    'Ингредиенты не должны дублироваться в рецепте'
+                )
+            unique_ingredients.add(ingredient)
+        super().clean()
 
 
 class IngredientAmount(models.Model):
@@ -132,11 +145,11 @@ class IngredientAmount(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
-        validators=[
+        validators=(
             MinValueValidator(
                 limit_value=1, message='Ингредиентов не может быть меньше 1!'
-            )
-        ],
+            ),
+        ),
     )
 
     class Meta:
@@ -167,11 +180,15 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
-                fields=['recipe', 'user'], name='favorite_unique'
-            )
-        ]
+                fields=(
+                    'recipe',
+                    'user',
+                ),
+                name='favorite_unique',
+            ),
+        )
 
     def __str__(self):
         return f'{self.user} добавил {self.recipe} в избранное'
@@ -196,11 +213,15 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'корзина'
         verbose_name_plural = 'Корзины'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
-                fields=['recipe', 'user'], name='shopping_cart_unique'
-            )
-        ]
+                fields=(
+                    'recipe',
+                    'user',
+                ),
+                name='shopping_cart_unique',
+            ),
+        )
 
     def __str__(self):
         return f'{self.user} добавил {self.recipe} в корзину'
