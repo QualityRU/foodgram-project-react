@@ -11,6 +11,23 @@
 <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=25&pause=500&color=F70000&center=true&vCenter=true&width=435&lines=Foodgram" alt="Kittygram" /></a>
 </div>
 
+### Доступ к проекту:
+
+https://foodgram.servecounterstrike.com/
+
+https://158.160.21.11/
+
+Учетная запись администратора:
+
+Логин: `admin@admin.ru`
+
+Пароль: `admin`
+
+Учетная запись тестового пользователя:
+
+Логин: `test@test.ru`
+
+Пароль: `testtesttest`
 
 ### Описание:
 Проект "Продуктовый помощник" предоставляет пользователям следующие возможности:
