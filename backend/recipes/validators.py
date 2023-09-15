@@ -29,9 +29,9 @@ class CookingTimeRecipeFieldValidator(serializers.Field):
 
     def to_internal_value(self, data):
         try:
-            if int(data) <= 0:
+            if 0 >= int(data) > 1000:
                 raise serializers.ValidationError(
-                    'Время приготовления должно быть больше 0'
+                    'Время приготовления должно быть больше 0 и не больше 1000'
                 )
         except ValueError:
             raise serializers.ValidationError(
@@ -46,9 +46,10 @@ class AmountIngredientFieldValidator(serializers.Field):
 
     def to_internal_value(self, data):
         try:
-            if int(data) <= 0:
+            if 0 >= int(data) > 50000:
                 raise serializers.ValidationError(
-                    'Количество ингредиентов не может быть меньше 1'
+                    'Количество ингредиентов не может быть меньше 1 '
+                    'и больше 5000'
                 )
         except ValueError:
             raise serializers.ValidationError(

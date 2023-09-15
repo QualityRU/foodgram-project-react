@@ -1,5 +1,5 @@
 from colorfield.fields import ColorField
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms import ValidationError
 
@@ -14,11 +14,19 @@ class Ingredient(models.Model):
         db_index=True,
         blank=False,
         max_length=200,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректное название.',
+        },
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
         blank=False,
         max_length=20,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректную единицу измерения.',
+        },
     )
 
     class Meta:
@@ -39,6 +47,10 @@ class Tag(models.Model):
         db_index=True,
         blank=False,
         max_length=200,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректное название.',
+        },
     )
     color = ColorField(
         format='hex',
@@ -47,12 +59,20 @@ class Tag(models.Model):
         unique=True,
         blank=False,
         max_length=7,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректный цвет.',
+        },
     )
     slug = models.SlugField(
         verbose_name='Индентификатор',
         unique=True,
         blank=False,
         max_length=200,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректный индентификатор.',
+        },
     )
 
     class Meta:
@@ -72,6 +92,10 @@ class Recipe(models.Model):
         verbose_name='Автор публикации',
         on_delete=models.CASCADE,
         related_name='recipes',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректного автора.',
+        },
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -80,19 +104,35 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректный тег/теги.',
+        },
     )
     image = models.ImageField(
         verbose_name='Фотограция',
         upload_to='recipes/',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Загрузите корректную фотографию.',
+        },
     )
     name = models.CharField(
         verbose_name='Название',
         blank=False,
         max_length=200,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректное название.',
+        },
     )
     text = models.TextField(
         verbose_name='Текстовое описание',
         blank=False,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректное текстовое описание.',
+        },
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
@@ -102,7 +142,15 @@ class Recipe(models.Model):
                 limit_value=1,
                 message='Время приготовления не может быть меньше 1 минуты!',
             ),
+            MaxValueValidator(
+                limit_value=1000,
+                message='Время приготовления не может быть больше 1000 минут!',
+            ),
         ),
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректное число от 1 до 1000.',
+        },
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -137,11 +185,19 @@ class IngredientAmount(models.Model):
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='ingredient_amount',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректный рецепт.',
+        },
     )
     ingredient = models.ForeignKey(
         Ingredient,
         verbose_name='Ингредиент',
         on_delete=models.CASCADE,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректный ингредиент.',
+        },
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
@@ -149,7 +205,15 @@ class IngredientAmount(models.Model):
             MinValueValidator(
                 limit_value=1, message='Ингредиентов не может быть меньше 1!'
             ),
+            MaxValueValidator(
+                limit_value=50000,
+                message='Ингредиентов не может быть больше 50000!',
+            ),
         ),
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректное количество.',
+        },
     )
 
     class Meta:
@@ -169,12 +233,20 @@ class Favorite(models.Model):
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='favorite',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректного пользователя.',
+        },
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='favorite',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректной рецепт.',
+        },
     )
 
     class Meta:
@@ -202,12 +274,20 @@ class ShoppingCart(models.Model):
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='shoppingcart',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректного пользователя.',
+        },
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='shoppingcart',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректный рецепт.',
+        },
     )
 
     class Meta:

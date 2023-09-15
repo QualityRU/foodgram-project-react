@@ -20,6 +20,8 @@ class User(AbstractUser):
         ),
         error_messages={
             'unique': 'Пользователь с таким e-mail уже создан!',
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректный E-mail.',
         },
     )
     username = models.CharField(
@@ -29,12 +31,18 @@ class User(AbstractUser):
         validators=(validate_username,),
         error_messages={
             'unique': 'Пользователь с таким username уже создан!',
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректный username.',
         },
     )
     password = models.CharField(
         verbose_name='Пароль',
         blank=False,
         max_length=150,
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректный пароль.',
+        },
     )
 
     USERNAME_FIELD = 'email'
@@ -71,12 +79,20 @@ class Subscribe(models.Model):
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
         related_name='subscriber',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Выберите корректного подписчика.',
+        },
     )
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
         related_name='subscribed',
+        error_messages={
+            'blank': 'Это поле обязательно для заполнения.',
+            'invalid': 'Введите корректного автора.',
+        },
     )
 
     class Meta:
