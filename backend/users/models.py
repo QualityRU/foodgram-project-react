@@ -79,20 +79,12 @@ class Subscribe(models.Model):
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
         related_name='subscriber',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректного подписчика.',
-        },
     )
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
         related_name='subscribed',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Введите корректного автора.',
-        },
     )
 
     class Meta:

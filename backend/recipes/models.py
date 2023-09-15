@@ -92,10 +92,6 @@ class Recipe(models.Model):
         verbose_name='Автор публикации',
         on_delete=models.CASCADE,
         related_name='recipes',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректного автора.',
-        },
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -104,18 +100,10 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Введите корректный тег/теги.',
-        },
     )
     image = models.ImageField(
         verbose_name='Фотограция',
         upload_to='recipes/',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Загрузите корректную фотографию.',
-        },
     )
     name = models.CharField(
         verbose_name='Название',
@@ -185,19 +173,11 @@ class IngredientAmount(models.Model):
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='ingredient_amount',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректный рецепт.',
-        },
     )
     ingredient = models.ForeignKey(
         Ingredient,
         verbose_name='Ингредиент',
         on_delete=models.CASCADE,
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректный ингредиент.',
-        },
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
@@ -233,20 +213,12 @@ class Favorite(models.Model):
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='favorite',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректного пользователя.',
-        },
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='favorite',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректной рецепт.',
-        },
     )
 
     class Meta:
@@ -274,20 +246,12 @@ class ShoppingCart(models.Model):
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='shoppingcart',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректного пользователя.',
-        },
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='shoppingcart',
-        error_messages={
-            'blank': 'Это поле обязательно для заполнения.',
-            'invalid': 'Выберите корректный рецепт.',
-        },
     )
 
     class Meta:
